@@ -1,0 +1,45 @@
+/* TODO: Move most of this into the d3 js */
+
+.node circle {
+	stroke: #49A556;
+	stroke-width: 3px;
+}
+.node circle.selected {
+	stroke-width: 6px;
+	cursor: pointer;
+}
+
+/* Hovering over an already selected node gives you option to unselect it */
+.node circle:hover, .node circle.selected:hover {
+	stroke: #49A556;
+	stroke-width: 6px;
+	cursor: pointer;
+}
+
+.node .root, .node .root:hover {
+	stroke-width: 3px;
+	fill: #666;
+	stroke: #666;
+}
+
+.node text { 
+	font-family: 'Cambria', 'Times New Romans';
+	letter-spacing: 2px;
+	font-size: 18px;
+}
+.node text.label {
+	font-family: sans-serif;
+	font-size: 12px !important;
+	font-weight: 500;
+	color: #666;
+}
+
+.link {
+	fill: none;
+	stroke: #ccc;
+	stroke-width: 2px;
+}
+.svg-container {
+	width: 100%;
+	overflow: scroll !important;
+}
