@@ -128,9 +128,6 @@
 				return Math.ceil((w1 * scale) + (w2 * scale) / 2);
 			});
 
-			var diagonal = d3.svg.diagonal().projection(function(d) {
-				return [d.x, d.y];
-			});
 
 			// TODO: Get tag names from conf file
 			this.color = d3.scale.ordinal()
@@ -149,134 +146,141 @@
 					that.config.dimensions.initialScale + 
 				')');
 
-			// Zooming and scale function for SVG -- attached to action object after update function below
-			function zoom() {
-				var scale = d3.event.scale,
-					translation = d3.event.translate,
-					tbound = -that.config.dimensions.height * scale,
-					bbound = that.config.dimensions.height * scale,
-					lbound = (-that.config.dimensions.width + that.config.dimensions.margins.right) * scale,
-					rbound = (that.config.dimensions.width + that.config.dimensions.margins.left) * scale;
-
-				var translation = [
-					Math.max(Math.min(translation[0], rbound), lbound),
-					Math.max(Math.min(translation[1], bbound), tbound)
-				];
-
-				that.canvas.attr('transform', 'translate(' + translation + ') scale(' + scale + ')');
-			}
-
-			// And alas, the d3 update function
-			this.root = this.data[0];
-			update(this.root);
-
-			/**
-			 * Update function is called every time the structure of the tree changes. It manages adjusting
-			 * the positions of the nodes, their colors, displaying attirbutes and relations, etc.
-			 *
-			 */
-			function update(source) {
-				var nodes = that.tree(that.root).reverse(),
-					links = that.tree.links(nodes);
-
-				nodes.forEach(function(d) {
-					d.y = d.depth * 100;
-				});
-
-				var node = that.svg.select('.canvas g').selectAll('g.node')
-					.data(nodes, function(d, i) {
-						return d.id || (d.id = ++i);
-					});
-
-				var nodeEnter = node.enter().append('g')
-					.attr('class', 'node')
-					.attr('transform', function(d) {
-						return 'translate(' + source.x + ', ' + source.y + ')';
-					});
-
-				nodeEnter.append('circle')
-					.attr('r', 10)
-					.style('stroke', function(d) {
-						return that.color(d.pos);
-					})
-					.style('fill', function(d) {
-						return '#FFF';
-					});
-
-				nodeEnter.append('text')
-					.attr('y', function(d, i) {
-						return (d.pos == 'root') ? -30 : 15;
-					})
-					.attr('dy', '14px')
-					.attr('text-anchor', 'middle')
-					.text(function(d) {
-						return d.value;
-					})
-					.style('fill', function(d, i) {
-						return (d.pos == 'root') ? '#CCC' : '#333';
-					})
-					.style('fill-opacity', 1);
-
-				nodeEnter.append('text')
-					.attr('y', function(d, i) {
-						return (d.pos == 'root') ? 0 : -30;
-					})
-					.attr('dy', '12px')
-					.attr('text-anchor', 'middle')
-					.attr('class', 'label')
-					.text(function(d) {
-						return d.relation;
-					});
-
-				var nodeUpdate = node.transition()
-					.duration(that.config.duration)
-					.attr('transform', function(d) {
-						return 'translate(' + d.x + ', ' + d.y + ')';
-					});
-
-				nodeUpdate.select('text.label')
-					.text(function(d) {
-						return d.relation;
-					});
-
-				nodeUpdate.select('circle')
-					.style('stroke', function(d) {
-						return that.color(d.pos);
-					})
-					.style('fill', function(d) {
-						return '#FFF';
-					});
-
-				var link = that.svg.select('.canvas g').selectAll('path.link')
-					.data(links, function(d) {
-						return d.target.id;
-					});
-
-				link.enter().insert('path', 'g')
-					.attr('class', 'link')
-					.attr('d', function(d) {
-						var o = { x: source.x, y: source.y };
-						return diagonal({ source: o, target: o });
-					});
-
-				link.transition()
-					.duration(that.config.duration)
-					.attr('d', diagonal);
-
-				nodes.forEach(function(d, i) {
-					d.x0 = d.x;
-					d.y0 = d.y;
-				});
-			}
-			// End of Update function
-
+			// Bind zoom behavior to zoom function
 			d3.select(this.$el.find('svg')[0])
 				.call(d3.behavior.zoom()
 					.scaleExtent([0.5, 5])
-					.on("zoom", zoom))
+					.on("zoom", this._zoom.bind(this)))
 				.on('dblclick.zoom', null);
 
-			this.update = update;
+			// And alas, the d3 update function
+			this.root = this.data[0];
+			this._update(this.root);
+		},
+
+		/**
+		 * Zooming and scaling function for the parse tree's canvas. Gets attached to the SVG object at end of render function.
+		 */
+		_zoom: function() {
+			var scale = d3.event.scale,
+				translation = d3.event.translate,
+				tbound = -this.config.dimensions.height * scale,
+				bbound = this.config.dimensions.height * scale,
+				lbound = (-this.config.dimensions.width + this.config.dimensions.margins.right) * scale,
+				rbound = (this.config.dimensions.width + this.config.dimensions.margins.left) * scale;
+
+			var translation = [
+				Math.max(Math.min(translation[0], rbound), lbound),
+				Math.max(Math.min(translation[1], bbound), tbound)
+			];
+
+			this.canvas.attr('transform', 'translate(' + translation + ') scale(' + scale + ')');
+		},
+
+		/**
+		 * Update function is called every time the structure of the tree changes. It manages adjusting
+		 * the positions of the nodes, their colors, displaying attirbutes and relations, etc.
+		 * @param {object} source - the data used to construct the tree 
+		 */
+		_update: function(source) {
+
+			var that = this;
+
+			var diagonal = d3.svg.diagonal().projection(function(d) {
+				return [d.x, d.y];
+			});
+
+			var nodes = this.tree(this.root).reverse(),
+				links = this.tree.links(nodes);
+
+			nodes.forEach(function(d) {
+				d.y = d.depth * 100;
+			});
+
+			var node = this.svg.select('.canvas g').selectAll('g.node')
+				.data(nodes, function(d, i) {
+					return d.id || (d.id = ++i);
+				});
+
+			var nodeEnter = node.enter().append('g')
+				.attr('class', 'node')
+				.attr('transform', function(d) {
+					return 'translate(' + source.x + ', ' + source.y + ')';
+				});
+
+			nodeEnter.append('circle')
+				.attr('r', 10)
+				.style('stroke', function(d) {
+					return that.color(d.pos);
+				})
+				.style('fill', function(d) {
+					return '#FFF';
+				});
+
+			nodeEnter.append('text')
+				.attr('y', function(d, i) {
+					return (d.pos == 'root') ? -30 : 15;
+				})
+				.attr('dy', '14px')
+				.attr('text-anchor', 'middle')
+				.text(function(d) {
+					return d.value;
+				})
+				.style('fill', function(d, i) {
+					return (d.pos == 'root') ? '#CCC' : '#333';
+				})
+				.style('fill-opacity', 1);
+
+			nodeEnter.append('text')
+				.attr('y', function(d, i) {
+					return (d.pos == 'root') ? 0 : -30;
+				})
+				.attr('dy', '12px')
+				.attr('text-anchor', 'middle')
+				.attr('class', 'label')
+				.text(function(d) {
+					return d.relation;
+				});
+
+			var nodeUpdate = node.transition()
+				.duration(this.config.duration)
+				.attr('transform', function(d) {
+					return 'translate(' + d.x + ', ' + d.y + ')';
+				});
+
+			nodeUpdate.select('text.label')
+				.text(function(d) {
+					return d.relation;
+				});
+
+			nodeUpdate.select('circle')
+				.style('stroke', function(d) {
+					return that.color(d.pos);
+				})
+				.style('fill', function(d) {
+					return '#FFF';
+				});
+
+			var link = this.svg.select('.canvas g').selectAll('path.link')
+				.data(links, function(d) {
+					return d.target.id;
+				});
+
+			link.enter().insert('path', 'g')
+				.attr('class', 'link')
+				.attr('d', function(d) {
+					var o = { x: source.x, y: source.y };
+					return diagonal({ source: o, target: o });
+				});
+
+			link.transition()
+				.duration(this.config.duration)
+				.attr('d', diagonal);
+
+			nodes.forEach(function(d, i) {
+				d.x0 = d.x;
+				d.y0 = d.y;
+			});
 		}
 	};
 
