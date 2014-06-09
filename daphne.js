@@ -204,6 +204,9 @@
 
 			var nodeEnter = node.enter().append('g')
 				.attr('class', 'node')
+				.on('click', function(d, i) {
+					that._clickNode(d, i, this, that);
+				})
 				.attr('transform', function(d) {
 					return 'translate(' + source.x + ', ' + source.y + ')';
 				});
@@ -281,6 +284,73 @@
 				d.x0 = d.x;
 				d.y0 = d.y;
 			});
+		},
+
+		/**
+		 * Click handler for a node.
+		 *
+		 */
+		_clickNode: function(d, i, scope, context) {
+			var node = d3.select(scope); 
+
+			// If the node was previously selected, then unselect it
+			if (node.classed('selected')) {
+				node.classed({ 'selected': false }); 
+				return;
+			}
+			else
+				node.classed({ 'selected': true });
+
+			// Otherwise, check to see if it's time to update links
+			var selected = [];
+			// Step 1: See if another node is also selected
+			context.svg.selectAll('circle').each(function(d, i) {
+
+				// PROBLEM: Always returns false, should return 1 or 2x
+				console.log(d3.select(this) == node);
+
+				if (d3.select(this).classed('selected')) selected.push(d); 
+			});
+
+			// Step 2: If two nodes are selected, update links
+			if (selected.length == 2) {
+				var parent = d;
+				var child = (parent.id != selected[0]["id"]) ? selected[0] : selected[1];
+
+				// Means: Child is already assigned to this parent, or they're trying to move the root
+				if (parent.tbwid == child.head || child.pos == 'root') {
+					context.svg.selectAll('circle').each(function(d, i) {
+						d3.select(this).classed({ 'selected': false });
+					});
+					return;
+				}
+				// Means: They're legitimately moving a node
+				else {
+					(parent.children || (parent.children = [])).push(child);
+					parent.children = _.sortBy(parent.children, function(obj) {
+						return obj.tbwid;
+					});
+
+					// Remove child from former parent
+					child.parent.children = _.filter(child.parent.children, function(obj) {
+						return obj.id != child.id;
+					});
+
+					if (child.parent.children.length == 0)
+						delete child.parent.children;	
+
+					child.parent = parent;
+					child.head = parent.tbwid;
+					update(child);
+					update(parent);
+
+					// Now, reset state of tree to unselected everything 
+					context.svg.selectAll('circle').each(function(d, i) {
+						d3.select(this).classed({ 'selected': false });
+					});
+
+				}
+			}
 		}
 	};
 
