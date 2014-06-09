@@ -72,14 +72,34 @@
 		 */
 		_convertData: function(words) {
 
+			var that = this;
+
+			// Store our good, untouched-by-the-user data somewhere safe 
+			this.answers = JSON.parse(JSON.stringify(words));
+
 			var dataMap = words.reduce(function(map, node) {
 				map[node.id] = node;
 				return map;
 			}, {});
 
+			// Calc root node, and append it to our datasets 
+			var rid = 0, node = {};
+			for (var i = 0; i < words.length; i++) {
+				node = words[i];
+				if (dataMap[node.head] == undefined)
+					break;	
+			}
+			var rootNode = { 'tbwid': node.head, 'value': 'root', 'pos': 'root' };
+			words.push(rootNode);
+			dataMap[node.head] = rootNode;
+
 			var treeData = [];
 			words.forEach(function(node) {
-				var head = dataMap[node.head];
+
+				// If we're in 'play' mode, reset head property of all nodes to the root node
+				var head = (that.config.mode == 'play' && node.pos != 'root') ? dataMap[rootNode.tbwid] : dataMap[node.head];
+
+				// Then, create the hierarchical data d3 needs
 				if (head)
 					(head.children || (head.children = [])).push(node);
 				else
@@ -164,7 +184,7 @@
 				});
 
 				var node = that.svg.select('.canvas g').selectAll('g.node')
-					.data(nodes, function(d) {
+					.data(nodes, function(d, i) {
 						return d.id || (d.id = ++i);
 					});
 
