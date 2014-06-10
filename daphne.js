@@ -22,7 +22,7 @@
 	Daphne.prototype = {
 
 		defaults: {
-			'mode': 'edit',
+			'mode': 'play',
 			'source': 'data.json', 	// For testing purposes, will be removed
 			'dimensions': {
 				'margins': {
@@ -89,6 +89,7 @@
 				if (dataMap[node.head] == undefined)
 					break;	
 			}
+
 			var rootNode = { 'id': node.head, 'value': 'root', 'pos': 'root' };
 			words.push(rootNode);
 			dataMap[node.head] = rootNode;
@@ -216,7 +217,6 @@
 
 					that._clickNode(d, i, d3.select(this));
 
-					console.log(d3.select(this).classed('selected'));
 					var width = d3.select(this).classed('selected') ? '6px' : '3px';
 					d3.select(this).style('stroke-width', width);
 				})
@@ -336,8 +336,8 @@
 				node.classed({ 'selected': true });
 
 			// Otherwise, check to see if it's time to update links
-			var selected = [];
 			// Step 1: See if another node is also selected
+			var selected = [];
 			this.svg.selectAll('circle').each(function(d, i) {
 				if (d3.select(this).classed('selected')) selected.push(d); 
 			});
@@ -348,11 +348,12 @@
 				var child = (parent.id != selected[0]["id"]) ? selected[0] : selected[1];
 
 				// Means: Child is already assigned to this parent, or they're trying to move the root
-				if (parent.id == child.head || child.pos == 'root') {
+				if (parent.id == child.parent.id || child.pos == 'root') {
 					this.svg.selectAll('circle').each(function(d, i) {
 						d3.select(this).classed({ 'selected': false });
 					});
 
+					console.log("Child is already assigned to this parent, or you're trying to move the root.");
 					// TODO: Display an error message to explain to user why their move was invalid
 					return;
 				}
@@ -362,11 +363,14 @@
 						d3.select(this).classed({ 'selected': false });
 					});
 
+					console.log("Trying to make an ancestor the child of one of its descendants.");
 					// TODO: Display an error message to explain to user why their move was invalid
 					return;
 				}
 				// Means: They're legitimately moving a node
 				else {
+
+					console.log("valid move");
 
 					// Add child to new parent, remove from former parent
 					parent.children = this._insertChild(parent.children, child);
@@ -375,6 +379,7 @@
 					child.parent = parent;
 					child.head = parent.id;
 					this._update(parent);
+					this._checkConnection(child);
 
 					// Now, reset state of tree to unselected everything 
 					this.svg.selectAll('circle').each(function(d, i) {
@@ -437,6 +442,24 @@
 			}
 			children.splice(i, 1);
 			return children;
+		},
+
+		/**
+		 * Determine whether the child has been appended to the gold-standard-compliant parent.
+		 * @param {object} child - the child node to check.
+		 */
+		_checkConnection: function(child) {
+			// TODO: Make this work
+			for (var i = 0; i < this.answers; i++) {
+				if (child.id == this.answers[i].id) {
+					if (child.parent.id == this.answers[i]["head"])
+						console.log("correct connection");
+					else
+						console.log("wrong answer");
+
+					break;
+				}
+			}
 		}
 	};
 
