@@ -136,12 +136,14 @@
 
 			// Now we start working on the elements themselves
 			this.svg = d3.select(this.el).append('svg')
-				.attr('class', 'svg-container');
+				.attr('class', 'svg-container')
+				.style('width', '100%')
+				.style('overflow', 'auto');
 			this.canvas = this.svg.append('g')
 				.attr('class', 'canvas');
 			this.canvas.append('g')
 				.attr('transform', 'translate(' + 
-					((that.config.dimensions.width / 2)) + ', ' + 
+					(that.config.dimensions.width) + ', ' + 
 					that.config.dimensions.margins.top + ') scale(' + 
 					that.config.dimensions.initialScale + 
 				')');
@@ -211,15 +213,34 @@
 			nodeEnter.append('circle')
 				.attr('r', 10)
 				.on('click', function(d, i) {
+
 					that._clickNode(d, i, d3.select(this));
+
+					console.log(d3.select(this).classed('selected'));
+					var width = d3.select(this).classed('selected') ? '6px' : '3px';
+					d3.select(this).style('stroke-width', width);
+				})
+				.on('mouseover', function(d, i) {
+					d3.select(this)
+						.style('stroke-width', '6px')
+						.style('cursor', 'pointer');
+				})
+				.on('mouseout', function(d, i) {
+					if (!d3.select(this).classed('selected')) {
+						d3.select(this)
+							.style('stroke-width', '3px')
+							.style('cursor', 'pointer');
+					}
 				})
 				.style('stroke', function(d) {
 					return that.color(d.pos);
 				})
+				.style('stroke-width', '3px')
 				.style('fill', function(d) {
 					return '#FFF';
 				});
 
+			// Value of the Node
 			nodeEnter.append('text')
 				.attr('y', function(d, i) {
 					return (d.pos == 'root') ? -30 : 15;
@@ -232,8 +253,12 @@
 				.style('fill', function(d, i) {
 					return (d.pos == 'root') ? '#CCC' : '#333';
 				})
+				.style('font-family', 'Cambria, Serif')
+				.style('letter-spacing', '2px')
+				.style('font-size', '18px')
 				.style('fill-opacity', 1);
 
+			// Relation of Node to Parent
 			nodeEnter.append('text')
 				.attr('y', function(d, i) {
 					return (d.pos == 'root') ? 0 : -30;
@@ -241,6 +266,11 @@
 				.attr('dy', '12px')
 				.attr('text-anchor', 'middle')
 				.attr('class', 'label')
+				.style('font-family', 'sans-serif')
+				.style('font-size', '12px')
+				.style('font-weight', 500)
+				.style('letter-spacing', '1px')
+				.style('fill', '#666')
 				.text(function(d) {
 					return d.relation;
 				});
@@ -271,6 +301,9 @@
 
 			link.enter().insert('path', 'g')
 				.attr('class', 'link')
+				.style('stroke', '#CCC')
+				.style('stroke-width', '2px')
+				.style('fill', 'none')
 				.attr('d', function(d) {
 					var o = { x: source.x, y: source.y };
 					return diagonal({ source: o, target: o });
@@ -287,8 +320,10 @@
 		},
 
 		/**
-		 * Click handler for a node.
-		 *
+		 * Click handler for a node. Decides whether to select, deselect, or move a node.
+		 * @param {object} d - data of the clicked node
+		 * @param {number} i - clicked node's index
+		 * @param {object} node - reference to the d3 selection of the node
 		 */
 		_clickNode: function(d, i, node) {
 
@@ -317,8 +352,8 @@
 					this.svg.selectAll('circle').each(function(d, i) {
 						d3.select(this).classed({ 'selected': false });
 					});
-					// TODO: Display an error message to explain to user why their move was invalid
 
+					// TODO: Display an error message to explain to user why their move was invalid
 					return;
 				}
 				// Means: They're trying to make an ancestor the child of one of its descendants
@@ -326,8 +361,8 @@
 					this.svg.selectAll('circle').each(function(d, i) {
 						d3.select(this).classed({ 'selected': false });
 					});
-					// TODO: Display an error message to explain to user why their move was invalid
 
+					// TODO: Display an error message to explain to user why their move was invalid
 					return;
 				}
 				// Means: They're legitimately moving a node
@@ -345,7 +380,6 @@
 					this.svg.selectAll('circle').each(function(d, i) {
 						d3.select(this).classed({ 'selected': false });
 					});
-
 				}
 			}
 		},
