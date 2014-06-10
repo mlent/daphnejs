@@ -321,7 +321,7 @@
 
 					return;
 				}
-				// Means: They're trying to make an ancestor the parent of one of its descendants
+				// Means: They're trying to make an ancestor the child of one of its descendants
 				else if (this._isAncestor(child, parent.id)) {
 					this.svg.selectAll('circle').each(function(d, i) {
 						d3.select(this).classed({ 'selected': false });
@@ -352,9 +352,8 @@
 
 		/**
 		 * In the parse tree, an ancestor cannot become the child of one of its descendants. 
-		 * @param {object} child - the node that will move, so long as it's not an ancestor of target node.
-		 * @param {object} parentId - the ID of the node that we want to ensure is not actually a child
-		 * 		of our prospective child.
+		 * @param {object} child - the node that will move, so long as it's not an ancestor of its new parent.
+		 * @param {object} parentId - the ID of the node that we want to ensure is not actually a descendant.
 		 */
 		_isAncestor: function(child, parentId) {
 
@@ -363,9 +362,8 @@
 				for (var i = 0, len = children.length; i < len; i++) {
 					if (children[i]["id"] == parentId)
 						return true;
-					else
-						if (this._isAncestor(children[i], parentId))
-							return true;
+					else if (this._isAncestor(children[i], parentId))
+						return true;
 				}
 			}
 
