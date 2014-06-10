@@ -89,7 +89,7 @@
 				if (dataMap[node.head] == undefined)
 					break;	
 			}
-			var rootNode = { 'tbwid': node.head, 'value': 'root', 'pos': 'root' };
+			var rootNode = { 'id': node.head, 'value': 'root', 'pos': 'root' };
 			words.push(rootNode);
 			dataMap[node.head] = rootNode;
 
@@ -97,7 +97,7 @@
 			words.forEach(function(node) {
 
 				// If we're in 'play' mode, reset head property of all nodes to the root node
-				var head = (that.config.mode == 'play' && node.pos != 'root') ? dataMap[rootNode.tbwid] : dataMap[node.head];
+				var head = (that.config.mode == 'play' && node.pos != 'root') ? dataMap[rootNode.id] : dataMap[node.head];
 
 				// Then, create the hierarchical data d3 needs
 				if (head)
@@ -204,15 +204,15 @@
 
 			var nodeEnter = node.enter().append('g')
 				.attr('class', 'node')
-				.on('click', function(d, i) {
-					that._clickNode(d, i, this, that);
-				})
 				.attr('transform', function(d) {
 					return 'translate(' + source.x + ', ' + source.y + ')';
 				});
 
 			nodeEnter.append('circle')
 				.attr('r', 10)
+				.on('click', function(d, i) {
+					that._clickNode(d, i, d3.select(this));
+				})
 				.style('stroke', function(d) {
 					return that.color(d.pos);
 				})
@@ -290,8 +290,7 @@
 		 * Click handler for a node.
 		 *
 		 */
-		_clickNode: function(d, i, scope, context) {
-			var node = d3.select(scope); 
+		_clickNode: function(d, i, node) {
 
 			// If the node was previously selected, then unselect it
 			if (node.classed('selected')) {
@@ -304,11 +303,7 @@
 			// Otherwise, check to see if it's time to update links
 			var selected = [];
 			// Step 1: See if another node is also selected
-			context.svg.selectAll('circle').each(function(d, i) {
-
-				// PROBLEM: Always returns false, should return 1 or 2x
-				console.log(d3.select(this) == node);
-
+			this.svg.selectAll('circle').each(function(d, i) {
 				if (d3.select(this).classed('selected')) selected.push(d); 
 			});
 
@@ -318,39 +313,67 @@
 				var child = (parent.id != selected[0]["id"]) ? selected[0] : selected[1];
 
 				// Means: Child is already assigned to this parent, or they're trying to move the root
-				if (parent.tbwid == child.head || child.pos == 'root') {
-					context.svg.selectAll('circle').each(function(d, i) {
+				if (parent.id == child.head || child.pos == 'root') {
+					this.svg.selectAll('circle').each(function(d, i) {
 						d3.select(this).classed({ 'selected': false });
 					});
 					return;
 				}
 				// Means: They're legitimately moving a node
 				else {
-					(parent.children || (parent.children = [])).push(child);
-					parent.children = _.sortBy(parent.children, function(obj) {
-						return obj.tbwid;
-					});
 
-					// Remove child from former parent
-					child.parent.children = _.filter(child.parent.children, function(obj) {
-						return obj.id != child.id;
-					});
-
-					if (child.parent.children.length == 0)
-						delete child.parent.children;	
+					// Add child to new parent, remove from former parent
+					parent.children = this._insertChild(parent.children, child);
+					child.parent.children = this._removeChild(child.parent.children, child);
 
 					child.parent = parent;
-					child.head = parent.tbwid;
-					update(child);
-					update(parent);
+					child.head = parent.id;
+
+					this._update(child);
+					this._update(parent);
 
 					// Now, reset state of tree to unselected everything 
-					context.svg.selectAll('circle').each(function(d, i) {
+					this.svg.selectAll('circle').each(function(d, i) {
 						d3.select(this).classed({ 'selected': false });
 					});
 
 				}
 			}
+		},
+
+		/**
+		 * Helper function for _clickNode -- splices a child node into an existing array of children at
+		 * correct index based on sentence order.
+		 * @param {array} children - children of the node.
+		 * @param {object} child - child to insert into array of children.
+		 */
+		_insertChild: function(children, child) {
+			(children || (children = []));
+
+			var i = 0;
+			for (i; i < children.length; i++) {
+				if (children[i].id > child.id)
+					break;
+			}
+
+			children.splice(i, 0, child);
+			return children;
+		},
+
+		/**
+		 * Helper function for _clickNode -- removes a child node from its parents list of children. 
+		 * @param {array} children - children of the node.
+		 * @param {object} child - child to insert into array of children.
+		 */
+		_removeChild: function(children, child) {
+
+			var i = 0;
+			for (i; i < children.length; i++) {
+				if (children[i].id == child.id)
+					break;
+			}
+			children.splice(i, 1);
+			return children;
 		}
 	};
 
