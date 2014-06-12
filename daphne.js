@@ -1,8 +1,10 @@
 // Make our plugin AMD comptaible: https://github.com/umdjs/umd
 !function(root, factory) {
 
+	console.log(root, factory);
+
 	if (typeof define === 'function' && define.amd) {
-		define(['jquery', 'd3'], factory);
+		define(['lib/jquery.min', 'lib/d3.min'], factory);
 	}
 	else {
 		factory(jQuery, d3);
