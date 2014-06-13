@@ -3,7 +3,20 @@ daphnejs
 
 Library for creating, editing, and checking parse trees in d3.
 
-## /demo
+## Installation
+Installation via npm is only necessary if you'd like to be able to run tests against Daphne. Otherwise, you can jump down to **Example Usage**. 
+
+```
+npm install
+```
+
+## Running Tests
+Daphne uses Mocha as its testing framework. From the home directory:
+```
+make test
+```
+
+# Example Usage
 
 This folder contains all you need to see Daphne working, and provides a sample of how to use Daphne in a RequireJS (or other such AMD) environment. It's crazy easy with RequireJS:
 
@@ -28,7 +41,8 @@ requirejs.config({
 
 require(['daphne'], function(Daphne) {
 
-    new Daphne('div', { mode: 'edit' });
+	// .init() only temporarily required
+    new Daphne('div', { mode: 'edit' }).init();
 
 });
 ```
@@ -43,3 +57,4 @@ You can pass your options into the constructor, or simply include them as `data-
 ```
 <div data-toggle="daphne" data-source="data.json" data-mode="edit"></div>
 ```
+
