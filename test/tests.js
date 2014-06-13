@@ -26,13 +26,6 @@ suite('Daphne', function() {
 		done();
 	});
 
-	suite('test', function() {
-		test('1 = 1', function() {
-			assert.equal(1, 1);
-		});
-	});
-
-	// This doesn't work yet...maybe one day
 	suite('removeChild', function() {
 		test('removeChild should remove child from array of children', function() {
 			
