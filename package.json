@@ -1,15 +1,34 @@
 {
-	"name": "daphne", 
-	"version": "0.0.1", 
-	"private": true, 
-	"dependencies": {
-		"requirejs": "latest", 
-		"jquery": "latest",
-		"d3": "latest"
-	}, 
-	"devDependencies": {
-		"mocha": "latest", 
-		"jsdom": "latest",
-		"xmlhttprequest": ">=1.5.0"
-	} 
+  "name": "daphne",
+  "version": "0.0.1",
+  "description": "Library for interacting with parse trees built in d3.",
+  "main": "daphne.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "d3": "^3.4.8",
+    "jsdom": "^0.10.6",
+    "jquery": "^2.1.1",
+    "mocha-phantomjs": "^3.4.1",
+    "phantomjs": "^1.9.7-8",
+    "requirejs": "^2.1.14",
+    "xmlhttprequest": "^1.6.0"
+  },
+  "devDependencies": {
+    "mocha": "^1.20.1"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mlent/daphnejs.git"
+  },
+  "author": "Monica Lent",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/mlent/daphnejs/issues"
+  },
+  "homepage": "https://github.com/mlent/daphnejs"
 }
