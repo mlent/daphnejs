@@ -1,7 +1,7 @@
 define(['d3'], function(d3) {
 	'use strict';
 
-	function Daphne(selector, options) {
+	function daphne(selector, options) {
 
 		this.el = document.querySelector(selector);
 		this.options = options;
@@ -15,7 +15,7 @@ define(['d3'], function(d3) {
 	}
 
 	// Plugin Methods + Shared Properties
-	Daphne.prototype.defaults = {
+	daphne.prototype.defaults = {
 		'mode': 'play',
 		'source': 'data.json', 	// For testing purposes, will be removed
 		'dimensions': {
@@ -32,7 +32,7 @@ define(['d3'], function(d3) {
 		'duration': 500
 	};
 
-	Daphne.prototype.init = function() {
+	daphne.prototype.init = function() {
 
 			this.config = this.extend({}, this.defaults, this.options);
 			this.el.addEventListener('populated', this.render.bind(this));
@@ -41,7 +41,7 @@ define(['d3'], function(d3) {
 			return this;
 	};
 
-	Daphne.prototype.extend = function(out) {
+	daphne.prototype.extend = function(out) {
 		out = out || {};
 
 		for (var i = 1; i < arguments.length; i++) {
@@ -58,7 +58,7 @@ define(['d3'], function(d3) {
 	};
 
 	/** Fetches whatever data we want to use to build the parse tree. */
-	Daphne.prototype._fetchData = function() {
+	daphne.prototype._fetchData = function() {
 
 		var request = new XMLHttpRequest();
 		request.open('GET', this.config.source, true);
@@ -93,7 +93,7 @@ define(['d3'], function(d3) {
 	 * Creates replicate copy of the data if the user is in 'edit' mode or 'play' mode.
 	 * @param {object} words - Array of word objects.
 	 */
-	Daphne.prototype._convertData = function(words) {
+	daphne.prototype._convertData = function(words) {
 
 		var that = this;
 
@@ -136,7 +136,7 @@ define(['d3'], function(d3) {
 	/**
 	 * Uses the fetched data to render the parse tree, considering user options
 	 */
-	Daphne.prototype.render = function(e) {
+	daphne.prototype.render = function(e) {
 			
 		var that = this;
 
@@ -187,7 +187,7 @@ define(['d3'], function(d3) {
 	/**
 	 * Zooming and scaling function for the parse tree's canvas. Gets attached to the SVG object at end of render function.
 	 */
-	Daphne.prototype._zoom = function() {
+	daphne.prototype._zoom = function() {
 		var scale = d3.event.scale,
 			translation = d3.event.translate,
 			tbound = -this.config.dimensions.height * scale,
@@ -208,7 +208,7 @@ define(['d3'], function(d3) {
 	 * the positions of the nodes, their colors, displaying attirbutes and relations, etc.
 	 * @param {object} source - the data used to construct the tree 
 	 */
-	Daphne.prototype._update = function(source) {
+	daphne.prototype._update = function(source) {
 
 		var that = this;
 
@@ -348,7 +348,7 @@ define(['d3'], function(d3) {
 	 * @param {number} i - clicked node's index
 	 * @param {object} node - reference to the d3 selection of the node
 	 */
-	Daphne.prototype._clickNode = function(d, i, node) {
+	daphne.prototype._clickNode = function(d, i, node) {
 
 		// If the node was previously selected, then unselect it
 		if (node.classed('selected')) {
@@ -417,7 +417,7 @@ define(['d3'], function(d3) {
 	 * @param {object} child - the node that will move, so long as it's not an ancestor of its new parent.
 	 * @param {object} parentId - the ID of the node that we want to ensure is not actually a descendant.
 	 */
-	Daphne.prototype._isAncestor = function(child, parentId) {
+	daphne.prototype._isAncestor = function(child, parentId) {
 
 		var children = child.children;
 		if (children) {
@@ -438,7 +438,7 @@ define(['d3'], function(d3) {
 	 * @param {array} children - children of the node.
 	 * @param {object} child - child to insert into array of children.
 	 */
-	Daphne.prototype._insertChild = function(children, child) {
+	daphne.prototype._insertChild = function(children, child) {
 		(children || (children = []));
 
 		var i = 0;
@@ -456,7 +456,7 @@ define(['d3'], function(d3) {
 	 * @param {array} children - children of the node.
 	 * @param {object} child - child to insert into array of children.
 	 */
-	Daphne.prototype._removeChild = function(children, child) {
+	daphne.prototype._removeChild = function(children, child) {
 
 		var i = 0;
 		for (i; i < children.length; i++) {
@@ -471,7 +471,7 @@ define(['d3'], function(d3) {
 	 * Determine whether the child has been appended to the gold-standard-compliant parent.
 	 * @param {object} child - the child node to check.
 	 */
-	Daphne.prototype._checkConnection = function(child) {
+	daphne.prototype._checkConnection = function(child) {
 		// TODO: Make this work
 		for (var i = 0; i < this.answers; i++) {
 			if (child.id == this.answers[i].id) {
@@ -485,6 +485,6 @@ define(['d3'], function(d3) {
 		}
 	};
 
-	return Daphne;
+	return daphne;
 
 });

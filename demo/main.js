@@ -9,14 +9,14 @@ requirejs.config({
 			'exports': 'd3'
 		},
 		'daphne': {
-			'exports': 'Daphne',
+			'exports': 'daphne',
 			'deps': ['d3']
 		}
 	}
 });
 
-require(['daphne'], function(daphne) {
+require(['daphne'], function(Daphne) {
 
-	var x = new daphne('div');
+	var x = new Daphne('div');
 
 });
