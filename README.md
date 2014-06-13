@@ -1,31 +1,31 @@
 daphnejs
 ======
 
-Library for creating, editing, and checking parse trees in d3.
+Library for creating, editing, and checking parse trees. Its only dependency is d3.
 
 ## Installation
-Installation via npm is only necessary if you'd like to be able to run tests against Daphne. Otherwise, you can jump down to **Example Usage**. 
+Installation via npm is only necessary if you'd like to be able to run tests. Otherwise, you can jump down to **Example Usage**. 
 
 ```
 npm install
 ```
 
 ## Running Tests
-Daphne uses Mocha as its testing framework. From the home directory:
+Daphne uses Mocha as its testing framework. From the project root:
 ```
 make test
 ```
 
 # Example Usage
 
-This folder contains all you need to see Daphne working, and provides a sample of how to use Daphne in a RequireJS (or other such AMD) environment. It's crazy easy with RequireJS:
+The demo folder contains all you need to see daphne working, and provides a sample of how to use daphne in a RequireJS (or other such AMD) environment. For example, with RequireJS:
 
 In `main.js`:
 ```javascript
 requirejs.config({
     'baseUrl': '/daphne',
     'paths': {
-        'd3': 'lib/d3.min',
+        'd3': '//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.min',
         'daphne': 'daphne'
     },  
     'shim': {
@@ -41,8 +41,7 @@ requirejs.config({
 
 require(['daphne'], function(Daphne) {
 
-	// .init() only temporarily required
-    new Daphne('div', { mode: 'edit' }).init();
+    new Daphne('div', { mode: 'edit' }).init();    // .init() only temporarily required
 
 });
 ```
@@ -52,7 +51,7 @@ Add to your `<head>`:
 <script data-main="main" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.11/require.min.js"></script>
 ```
 
-You can pass your options into the constructor, or simply include them as `data-` attributes on the DOM element.
+You can pass your options into the constructor (as shown above), or simply include them as `data-` attributes on the DOM element.
 
 ```
 <div data-toggle="daphne" data-source="data.json" data-mode="edit"></div>
