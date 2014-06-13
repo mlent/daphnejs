@@ -10,5 +10,6 @@
 	"devDependencies": {
 		"mocha": "latest", 
 		"jsdom": "latest",
+		"xmlhttprequest": ">=1.5.0"
 	} 
 }
