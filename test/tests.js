@@ -5,8 +5,7 @@ var assert = require("assert"),
 var document = jsdom.jsdom("<html><body></body></html>"),
    window = document.createWindow();
 
-var jQuery = global.$ = require('jquery')(window);
-global.document = document, global.window = window;
+var jQuery = require('jquery')(window), $ = jQuery;
 
 requirejs.config({
 	'baseUrl': '.',
