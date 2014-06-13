@@ -1,22 +1,34 @@
-'use strict';
-var requirejs = require("requirejs"); 
+var assert = require("assert"), 
+	requirejs = require("requirejs"), 
+	jsdom = requirejs('jsdom'); 
+
+var document = jsdom.jsdom("<html><body></body></html>"),
+   window = document.createWindow();
+
+var jQuery = global.$ = require('jquery')(window);
+global.document = document, global.window = window;
 
 requirejs.config({
 	'baseUrl': '.',
 	nodeRequire: require
 });
 
-var assert = require("assert");
+var Daphne = requirejs('daphne');
 
 suite('Daphne', function() {
 
-	var Daphne;
+	var daphne;
 
 	setup(function(done) {
-		requirejs(['daphne'], function(d) {
-			console.log("fired!");
-			Daphne = d;
-			done();
+		var el = $('div').appendTo('body');
+		daphne = el.Daphne();
+
+		done();
+	});
+
+	suite('test', function() {
+		test('1 = 1', function() {
+			assert.equal(1, 1);
 		});
 	});
 
@@ -35,7 +47,7 @@ suite('Daphne', function() {
 				{ 'id' : 5 }
 			];
 
-			assert.equal(output, Daphne._removeChild(children, child));
+			assert.equal(output, daphne._removeChild(children, child));
 
 		});
 	});

@@ -1,10 +1,8 @@
 // Make our plugin AMD comptaible: https://github.com/umdjs/umd
 !function(root, factory) {
 
-	console.log(root, factory);
-
 	if (typeof define === 'function' && define.amd) {
-		define(['lib/jquery.min', 'lib/d3.min'], factory);
+		define(['jquery', 'd3'], factory);
 	}
 	else {
 		factory(jQuery, d3);
@@ -13,8 +11,11 @@
 }(this, function($, d3) {
 	'use strict';
 
+	var root, Daphne;
+	root = typeof window !== "undefined" && window !== null ? window : global;
+
 	// Plugin Constructor
-	var Daphne = function(el, options) {
+	root.Daphne = Daphne = function(el, options) {
 		this.el = el;
 		this.$el = $(el);
 		this.options = options;
