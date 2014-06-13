@@ -2,10 +2,10 @@ var assert = require("assert"),
 	requirejs = require("requirejs"), 
 	jsdom = requirejs('jsdom'); 
 
-var document = jsdom.jsdom("<html><body></body></html>"),
-   window = document.createWindow();
-
-var jQuery = require('jquery')(window), $ = jQuery;
+var window = jsdom.jsdom().createWindow('<html><body></body></html>');
+global.document = window.document;
+global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
+window.XMLHttpRequest.prototype.withCredentials = false;
 
 requirejs.config({
 	'baseUrl': '.',
@@ -19,8 +19,9 @@ suite('Daphne', function() {
 	var daphne;
 
 	setup(function(done) {
-		var el = $('div').appendTo('body');
-		daphne = el.Daphne();
+		var el = document.createElement('div'); 
+		document.body.appendChild(el);
+		daphne = new Daphne('div'); 
 
 		done();
 	});
@@ -41,12 +42,12 @@ suite('Daphne', function() {
 				{ 'id' : 5 }
 			];
 			var child = { 'id': 1 };
-			var ouput = [
+			var output = [
 				{ 'id' : 3 },
 				{ 'id' : 5 }
 			];
 
-			assert.equal(output, daphne._removeChild(children, child));
+			assert.deepEqual(output, daphne._removeChild(children, child));
 
 		});
 	});

@@ -17,7 +17,7 @@ define(['d3'], function(d3) {
 	// Plugin Methods + Shared Properties
 	daphne.prototype.defaults = {
 		'mode': 'play',
-		'source': 'data.json', 	// For testing purposes, will be removed
+		'source': 'http://monicalent.com/daphne/demo/data.json', 	// For testing purposes, will be removed
 		'dimensions': {
 			'margins': {
 				'top': 50,
