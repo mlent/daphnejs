@@ -2,10 +2,10 @@ var assert = require("assert"),
 	requirejs = require("requirejs"), 
 	jsdom = requirejs('jsdom'); 
 
-var window = jsdom.jsdom().createWindow('<html><body></body></html>');
+global.window = jsdom.jsdom().createWindow('<html><body></body></html>');
 global.document = window.document;
 global.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
-window.XMLHttpRequest.prototype.withCredentials = false;
+global.window.XMLHttpRequest.prototype.withCredentials = false;
 
 requirejs.config({
 	'baseUrl': '.',

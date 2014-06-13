@@ -9,14 +9,12 @@ define(['d3'], function(d3) {
 		if (this.el == null)
 			console.log("Could not find DOM object");
 
-		this.init();
-
 		return this;
 	}
 
 	// Plugin Methods + Shared Properties
 	daphne.prototype.defaults = {
-		'mode': 'play',
+		'mode': 'edit',
 		'source': 'http://monicalent.com/daphne/demo/data.json', 	// For testing purposes, will be removed
 		'dimensions': {
 			'margins': {
