@@ -9,10 +9,18 @@ module.exports = function(grunt) {
 				src: '<%= pkg.name %>.js',
 				dest: 'build/<%= pkg.name %>.min.js'
 			}
+		},
+		blanket_mocha: {
+			all: ['test/*.html'],
+			options: {
+				threshold: 90,
+				run: false 
+			}
 		}
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-uglify');
-	grunt.registerTask('default', ['uglify']);
+	grunt.loadNpmTasks('grunt-blanket-mocha');
+	grunt.registerTask('default', ['uglify', 'blanket_mocha']);
 
 };

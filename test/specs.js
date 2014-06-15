@@ -1,0 +1,1 @@
+define(['specs/spec.js']);
