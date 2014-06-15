@@ -1,0 +1,27 @@
+{
+  "name": "daphne",
+  "main": "daphne.js",
+  "version": "0.0.1",
+  "homepage": "http://mlent.github.io/daphnejs",
+  "authors": [
+    "Monica <lent.monica@gmail.com>"
+  ],
+  "description": "Library for interacting with parse trees built in d3.",
+  "moduleType": [
+    "amd"
+  ],
+  "license": "BSD",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "blanket": "~1.1.5",
+    "chai": "~1.9.1",
+    "mocha": "~1.20.1"
+  }
+}
