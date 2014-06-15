@@ -4,10 +4,63 @@
 
 	<script data-main="js/main" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.11/require.min.js"></script>
 
+<style>
+body {
+	font-family: Arial;
+	background-color: #FEFEFE;
+	color: #333;
+	padding: 50px;
+	font-size: 14px;
+}
+p, li {
+	line-height: 24px;
+}
+hr {
+	border: 1px solid #DDD;
+}
+a, a:visited, a:active {
+	color: rgb(29, 120, 170);
+	border: 0;
+	text-decoration: none;
+}
+a:hover {
+	color: rgb(29, 120, 170);
+	border-bottom: 2px solid #EEE;
+	text-decoration: none;
+}
+h1, h2, h3, h4, h5, h6 {
+	font-weight: normal;
+}
+</style>
+
 </head>
 <body>
+<h1>Daphne.js (<a href="http://github.com/mlent/daphnejs">Github</a>)</h1>
+<p>
+	Library for creating, editing, and checking parse trees. Its only dependency is d3.
+</p>
 
-	<div data-toggle="daphne"></div>
+<p>
+	Click a node and its new parent to move nodes within the parse tree. 
+</p>
+<div data-toggle="daphne" data-mode="edit" style="border: 1px solid #EEE"></div>
+
+<h2>Features</h2>
+<ul>
+	<li> Ingests flat data with id and head attributes, and builds their parse tree.</li>
+	<li> Modes: Edit, Play (planned: display).</li>
+	<li> Zoom and pan trees.</li>
+</ul>
+
+<hr>
+
+<h2>Planned Features</h2>
+<p>Daphne.js will emulate and improve upon all the features in the OPP parse tree demo, including:</p>
+<ul>
+	<li> Answer-checking and game-play mode.</li>
+	<li> Export data to XML.</li>
+	<li> Change attributes on the nodes. Add and remove attributes as needed.</li>
+</ul>
 
 </body>
 </html>
