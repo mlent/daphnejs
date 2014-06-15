@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta chaset="utf-8">
+	<title>Tests</title>
+	<link rel="stylesheet" href="../bower_components/mocha/mocha.css">
+</head>
+<body>
+	<div id="mocha"></div>
+
+	<script src="../bower_components/mocha/mocha.js"></script>
+	<script data-main="main-tests" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.11/require.min.js"></script>
+	<script src="../bower_components/blanket/dist/qunit/blanket.js"></script>
+	<script src="../node_modules/grunt-blanket-mocha/support/mocha-blanket.js"></script>
+
+	<script>
+		if (window.PHANTOMJS)
+			blanket.options("reporter", "../node_modules/grunt-blanket-mocha/support/grunt-reporter.js");
+	</script>
+
+	<style>
+		#blanket-main {
+			margin: 0 25px 0 65px;
+			font-size: 12px;
+		}
+	</style>
+
+</body>
