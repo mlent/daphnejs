@@ -4,7 +4,7 @@ define(['d3'], function(d3) {
 	function daphne(selector, options) {
 
 		this.el = document.querySelector(selector);
-		this.options = options;
+		this.options = options || {};
 
 		if (this.el == null)
 			console.log("Could not find DOM object");
@@ -30,15 +30,23 @@ define(['d3'], function(d3) {
 		'duration': 500
 	};
 
+	/**
+	 * Initializes the plugin, combines user-set preferences with defaults.
+	 */ 
 	daphne.prototype.init = function() {
 
 			this.config = this.extend({}, this.defaults, this.options);
 			this.el.addEventListener('populated', this.render.bind(this));
+
+			// TODO: Allow user to pass in data instead of getting it from a URL.
 			this._fetchData();
 
 			return this;
 	};
 
+	/**
+	 * Utility method for merging two objects.
+	 */ 
 	daphne.prototype.extend = function(out) {
 		out = out || {};
 
@@ -55,7 +63,9 @@ define(['d3'], function(d3) {
 		return out;
 	};
 
-	/** Fetches whatever data we want to use to build the parse tree. */
+	/** 
+	 * Fetches whatever data we want to use to build the parse tree. 
+	 */
 	daphne.prototype._fetchData = function() {
 
 		var request = new XMLHttpRequest();
