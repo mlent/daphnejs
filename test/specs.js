@@ -1,1 +1,0 @@
-define(['specs/spec.js']);
