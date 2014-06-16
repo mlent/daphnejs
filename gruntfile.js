@@ -11,9 +11,9 @@ module.exports = function(grunt) {
 			}
 		},
 		blanket_mocha: {
-			all: ['test/**/*.html'],
+			all: ['test/index.html'],
 			options: {
-				threshold: 90,
+				threshold: 70,
 				run: false 
 			}
 		},

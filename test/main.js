@@ -17,6 +17,7 @@ require.config({
 });
 
 require(['chai'], function(chai) {
+
 	chai.should();
 	window.expect = chai.expect;
 	window.assert = chai.assert;
