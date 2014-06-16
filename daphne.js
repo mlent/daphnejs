@@ -1,7 +1,30 @@
 define(['d3'], function(d3) {
+
 	'use strict';
 
-	//var d3 = require('d3');
+	// Implement .bind so PhantomJS can still test our code
+	if (!Function.prototype.bind) {
+		Function.prototype.bind = function (oThis) {
+			if (typeof this !== "function") {
+				// closest thing possible to the ECMAScript 5
+				// internal IsCallable function
+				throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+			}
+
+			var aArgs = Array.prototype.slice.call(arguments, 1), 
+				FToBind = this, 
+				FNOP = function () {},
+				FBound = function () {
+					return FToBind.apply(this instanceof FNOP && oThis ? this : oThis,
+						aArgs.concat(Array.prototype.slice.call(arguments)));
+				};
+
+			FNOP.prototype = this.prototype;
+			FBound.prototype = new FNOP();
+
+			return FBound;
+		};
+	}
 
 	function daphne(selector, options) {
 
@@ -12,6 +35,7 @@ define(['d3'], function(d3) {
 		if (this.el === null)
 			console.log("Could not find DOM object");
 
+		this.init();
 		return this;
 	}
 
@@ -38,13 +62,13 @@ define(['d3'], function(d3) {
 	 */ 
 	daphne.prototype.init = function() {
 
-			this.config = this.extend({}, this.defaults, this.options);
-			this.el.addEventListener('populated', this.render.bind(this));
+		this.config = this.extend({}, this.defaults, this.options);
+		this.el.addEventListener('populated', this.render.bind(this));
 
-			// TODO: Allow user to pass in data instead of getting it from a URL.
-			this._fetchData();
+		// TODO: Allow user to pass in data instead of getting it from a URL.
+		this._fetchData();
 
-			return this;
+		return this;
 	};
 
 	/**
