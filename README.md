@@ -8,6 +8,8 @@ Installation via npm is only necessary if you'd like to be able to run tests. Ot
 
 ```
 npm install
+npm install grunt-cli -g
+bower install
 ```
 
 ## Running Tests
