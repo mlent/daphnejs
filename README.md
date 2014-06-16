@@ -8,14 +8,14 @@ Installation via npm is only necessary if you'd like to be able to run tests. Ot
 
 ```
 npm install
-npm install grunt-cli -g
+npm install phantomjs grunt-cli -g
 bower install
 ```
 
 ## Running Tests
 Daphne uses Mocha as its testing framework. From the project root:
 ```
-make test
+grunt test
 ```
 
 # Example Usage
