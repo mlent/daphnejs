@@ -1,5 +1,5 @@
 require.config({
-	baseUrl: '.',
+	baseUrl: '../',
 	paths: {
 		'd3': '//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.min',
 		'bower_components/chai/chai'

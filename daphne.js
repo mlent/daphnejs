@@ -3,10 +3,11 @@ define(['d3'], function(d3) {
 
 	function daphne(selector, options) {
 
+		/*jshint validthis:true */
 		this.el = document.querySelector(selector);
 		this.options = options || {};
 
-		if (this.el == null)
+		if (this.el === null)
 			console.log("Could not find DOM object");
 
 		return this;
@@ -76,13 +77,14 @@ define(['d3'], function(d3) {
 				this.data = this._convertData(JSON.parse(request.responseText).words);
 
 				// Tell our app that data has populated
+				var ev;
 				if (window.CustomEvent) 
-					var e = new CustomEvent('populated');
+					ev = new CustomEvent('populated');
 				else {
-					var e = document.createEvent('CustomEvent');
-					e.initEvent('populated', true, true);
+					ev = document.createEvent('CustomEvent');
+					ev.initEvent('populated', true, true);
 				}
-				this.el.dispatchEvent(e);
+				this.el.dispatchEvent(ev);
 			}
 			else {
 				console.log("Reached server but server error occured while trying to fetch data");
@@ -117,7 +119,7 @@ define(['d3'], function(d3) {
 		var rid = 0, node = {};
 		for (var i = 0; i < words.length; i++) {
 			node = words[i];
-			if (dataMap[node.head] == undefined)
+			if (dataMap[node.head] === undefined)
 				break;	
 		}
 
@@ -197,15 +199,15 @@ define(['d3'], function(d3) {
 	 */
 	daphne.prototype._zoom = function() {
 		var scale = d3.event.scale,
-			translation = d3.event.translate,
+			trans = d3.event.translate,
 			tbound = -this.config.dimensions.height * scale,
 			bbound = this.config.dimensions.height * scale,
 			lbound = (-this.config.dimensions.width + this.config.dimensions.margins.right) * scale,
 			rbound = (this.config.dimensions.width + this.config.dimensions.margins.left) * scale;
 
 		var translation = [
-			Math.max(Math.min(translation[0], rbound), lbound),
-			Math.max(Math.min(translation[1], bbound), tbound)
+			Math.max(Math.min(trans[0], rbound), lbound),
+			Math.max(Math.min(trans[1], bbound), tbound)
 		];
 
 		this.canvas.attr('transform', 'translate(' + translation + ') scale(' + scale + ')');
@@ -376,7 +378,7 @@ define(['d3'], function(d3) {
 		// Step 2: If two nodes are selected, update links
 		if (selected.length == 2) {
 			var parent = d;
-			var child = (parent.id != selected[0]["id"]) ? selected[0] : selected[1];
+			var child = (parent.id != selected[0].id) ? selected[0] : selected[1];
 
 			// Means: Child is already assigned to this parent, or they're trying to move the root
 			if (parent.id == child.parent.id || child.pos == 'root') {
@@ -430,7 +432,7 @@ define(['d3'], function(d3) {
 		var children = child.children;
 		if (children) {
 			for (var i = 0, len = children.length; i < len; i++) {
-				if (children[i]["id"] == parentId)
+				if (children[i].id == parentId)
 					return true;
 				else if (this._isAncestor(children[i], parentId))
 					return true;
@@ -447,7 +449,8 @@ define(['d3'], function(d3) {
 	 * @param {object} child - child to insert into array of children.
 	 */
 	daphne.prototype._insertChild = function(children, child) {
-		(children || (children = []));
+		if (!children)
+			children = [];
 
 		var i = 0;
 		for (i; i < children.length; i++) {
@@ -483,7 +486,7 @@ define(['d3'], function(d3) {
 		// TODO: Make this work
 		for (var i = 0; i < this.answers; i++) {
 			if (child.id == this.answers[i].id) {
-				if (child.parent.id == this.answers[i]["head"])
+				if (child.parent.id == this.answers[i].head)
 					console.log("correct connection");
 				else
 					console.log("wrong answer");

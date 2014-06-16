@@ -16,11 +16,25 @@ module.exports = function(grunt) {
 				threshold: 90,
 				run: false 
 			}
+		},
+		jshint: {
+			files: ['daphne.js'],
+			options: {
+				globals: {
+					d3: true,
+					console: true,
+					module: true,
+					document: true
+				}
+			}
 		}
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-blanket-mocha');
+
 	grunt.registerTask('default', ['uglify', 'blanket_mocha']);
+	grunt.registerTask('test', ['jshint', 'blanket_mocha']);
 
 };
