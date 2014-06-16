@@ -1,6 +1,8 @@
 define(['d3'], function(d3) {
 	'use strict';
 
+	//var d3 = require('d3');
+
 	function daphne(selector, options) {
 
 		/*jshint validthis:true */

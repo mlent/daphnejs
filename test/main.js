@@ -1,17 +1,12 @@
 require.config({
 	baseUrl: '../',
 	paths: {
-		'd3': '//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.min',
+		'd3': 'node_modules/d3/d3',
 		'chai': 'bower_components/chai/chai',
-		'daphne': 'daphne'
 	},
 	'shim': {
 		'd3': {
 			'exports': 'd3'
-		},
-		'daphne': {
-			'exports': 'daphne',
-			'deps': ['d3']
 		}
 	}
 });
@@ -22,6 +17,10 @@ require(['chai'], function(chai) {
 	window.expect = chai.expect;
 	window.assert = chai.assert;
 	mocha.setup("tdd");
+
+	console.log(blanket);
+	/*blanket.options('filter', ['daphne.js']);
+	blanket.options('branchTracking', true);*/
 
 	require(['test/spec'], function() {
 		mocha.run();
