@@ -25,10 +25,10 @@ The demo folder contains all you need to see daphne working, and provides a samp
 In `main.js`:
 ```javascript
 requirejs.config({
-    'baseUrl': '/daphne',
+    'baseUrl': '../',
     'paths': {
         'd3': '//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.min',
-        'daphne': 'daphne'
+        'daphne': 'dist/daphne.min'
     },  
     'shim': {
         'd3': {
@@ -43,19 +43,13 @@ requirejs.config({
 
 require(['daphne'], function(Daphne) {
 
-    new Daphne('div', { mode: 'edit' }).init();    // .init() only temporarily required
-
+	// Pass in query selector as first argument and options thereafter
+    new Daphne('div', { mode: 'edit' })
 });
 ```
 
 Add to your `<head>`:
 ```html
+<link rel="stylesheet" href="../dist/daphne.css" type="text/css">
 <script data-main="main" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.11/require.min.js"></script>
 ```
-
-You can pass your options into the constructor (as shown above), or simply include them as `data-` attributes on the DOM element.
-
-```
-<div data-toggle="daphne" data-source="data.json" data-mode="edit"></div>
-```
-

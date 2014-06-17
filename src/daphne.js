@@ -169,6 +169,7 @@ define(['d3'], function(d3) {
 		for (var i = 0; i < this.answers.length; i++) {
 			var span = document.createElement('span'), space = document.createTextNode(' ');
 			span.innerHTML = this.answers[i].value;
+			span.setAttribute('data-id', this.answers[i].id);
 			this.header.appendChild(span);
 			this.header.appendChild(space);
 		}
@@ -206,7 +207,7 @@ define(['d3'], function(d3) {
 			')');
 
 		// Bind zoom behavior to zoom function
-		d3.select(this.el.querySelectorAll('svg')[0])
+		d3.select(this.el.querySelector('svg'))
 			.call(d3.behavior.zoom()
 				.scaleExtent([0.5, 5])
 				.on("zoom", this._zoom.bind(this)))
@@ -357,6 +358,7 @@ define(['d3'], function(d3) {
 		});
 	};
 
+	// TODO: Break down this click handler into much smaller parts...
 	/**
 	 * Click handler for a node. Decides whether to select, deselect, or move a node.
 	 * @param {object} d - data of the clicked node
@@ -368,10 +370,14 @@ define(['d3'], function(d3) {
 		// If the node was previously selected, then unselect it
 		if (node.classed('selected')) {
 			node.classed({ 'selected': false }); 
+			this.el.querySelector('span[data-id="' + d.id + '"]').className = '';
 			return;
 		}
 		else
 			node.classed({ 'selected': true });
+
+		// Highlight the word in the sentence
+		this.el.querySelector('span[data-id="' + d.id + '"]').className = 'selected';
 
 		// Otherwise, check to see if it's time to update links
 		// Step 1: See if another node is also selected
@@ -393,7 +399,6 @@ define(['d3'], function(d3) {
 
 				console.log("Child is already assigned to this parent, or you're trying to move the root.");
 				// TODO: Display an error message to explain to user why their move was invalid
-				return;
 			}
 			// Means: They're trying to make an ancestor the child of one of its descendants
 			else if (this._isAncestor(child, parent.id)) {
@@ -403,7 +408,6 @@ define(['d3'], function(d3) {
 
 				console.log("Trying to make an ancestor the child of one of its descendants.");
 				// TODO: Display an error message to explain to user why their move was invalid
-				return;
 			}
 			// Means: They're legitimately moving a node
 			else {
@@ -423,7 +427,13 @@ define(['d3'], function(d3) {
 				this.svg.selectAll('circle').each(function(d, i) {
 					d3.select(this).classed({ 'selected': false });
 				});
+
 			}
+
+			setTimeout(function() {
+				this.el.querySelector('span[data-id="' + parent.id + '"]').className = '';
+				this.el.querySelector('span[data-id="' + child.id + '"]').className = '';
+			}.bind(this), 500);
 		}
 	};
 
