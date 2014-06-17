@@ -1,0 +1,68 @@
+$greek-font: Cambria, Serif;
+$main-font: sans-serif;
+$text-color: #666;
+$text-selected-bg-color: #0DAFAF;
+$text-selected-color: #FFF;
+
+.daphne {
+	border: 1px solid #EEE;
+	background-color: #FFF;
+
+	.node {
+		circle {
+			stroke-width: 3px;
+			fill: #FFF;
+
+			&.hover, &.selected {
+				stroke-width: 6px !important;
+				cursor: pointer;
+			}
+		}
+		text {
+			font-size: 18px;
+			fill-opacity: 1;
+			fill: $text-color;
+
+			&[lang="grc"] {
+				font-family: $greek-font;
+				letter-spacing: 2px;
+			}
+			&.label {
+				font-weight: 500;
+				letter-spacing: 1px;
+				fill: lighten($text-color, 10%);
+				font-family: $main-font;
+				font-size: 12px;
+			}
+		}
+	}
+
+	.sentence {
+		border-bottom: 1px solid #EEE;
+		padding: 12px;
+		font-family: $greek-font;
+		letter-spacing: 1px;
+
+		span {
+			padding: 3px;
+			margin: 2px;
+			border-radius: 2px;
+			background-color: transparent;
+			-webkit-transition: background-color 700ms ease-out;
+			-moz-transition: background-color 700ms ease-out;
+			-o-transition: background-color 700ms ease-out;
+			-ms-transition: background-color 700ms ease-out;
+			transition: background-color 700ms ease-out;
+
+			&.selected {
+				background-color: $text-selected-bg-color;
+				color: $text-selected-color;
+				-webkit-transition: background-color 500ms ease-in;
+				-moz-transition: background-color 500ms ease-in;
+				-o-transition: background-color 500ms ease-in;
+				-ms-transition: background-color 500ms ease-in;
+				transition: background-color 500ms ease-in;
+			}
+		}
+	}
+}

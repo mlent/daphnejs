@@ -34,26 +34,13 @@ module.exports = function(grunt) {
 				}
 			}
 		},
-		watch: {
-			sass: {
-				files: ['sass/**/*.{scss,sass}','sass/_partials/**/*.{scss,sass}'],
-				tasks: ['sass:dist']
-			},
-			livereload: {
-				files: ['*.html', 'js/**/*.{js,json}', 'css/*.css','img/**/*.{png, jpg, jpeg, gif, webp, svg}'],
-				options: {
-					livereload: true
-				}
-			}					
-		},
 		sass: {
 			options: {
-				sourceComments: 'map',
-				outputStyle: 'extended'
+				outputStyle: 'compressed'
 			},
 			dist: {
 				files: {
-					'dist/style.css': 'src/style.scss'
+					'dist/daphne.css': 'src/daphne.scss'
 				}
 			}
 		}
@@ -63,9 +50,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-blanket-mocha');
 	grunt.loadNpmTasks('grunt-sass');
-	grunt.loadNpmTasks('grunt-contrib-watch');
 
-	grunt.registerTask('default', ['uglify', 'sass:dist', 'watch']);
+	grunt.registerTask('default', ['uglify', 'sass:dist']);
 	grunt.registerTask('test', ['jshint', 'blanket_mocha']);
 
 };

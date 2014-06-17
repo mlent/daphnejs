@@ -15,6 +15,9 @@ define(['d3'], function(d3) {
 
 		// Build the DOM a bit
 		this.el.className = 'daphne';
+		this.header = document.createElement('div');
+		this.header.className = 'sentence';
+		this.el.appendChild(this.header);
 
 		this.init();
 		return this;
@@ -23,6 +26,7 @@ define(['d3'], function(d3) {
 	// Plugin Methods + Shared Properties
 	daphne.prototype.defaults = {
 		'mode': 'edit',
+		'lang': 'grc',
 		'source': 'http://monicalent.com/daphne/demo/data.json', 	// For testing purposes, will be removed
 		'dimensions': {
 			'margins': {
@@ -161,6 +165,14 @@ define(['d3'], function(d3) {
 			
 		var that = this;
 
+		// Put the sentence as a whole into the header
+		for (var i = 0; i < this.answers.length; i++) {
+			var span = document.createElement('span'), space = document.createTextNode(' ');
+			span.innerHTML = this.answers[i].value;
+			this.header.appendChild(span);
+			this.header.appendChild(space);
+		}
+
 		// To keep multiple instances from stomping on each other's data/d3 references
 		this.tree = d3.layout.tree().nodeSize([100, 50]);
 
@@ -258,30 +270,18 @@ define(['d3'], function(d3) {
 		nodeEnter.append('circle')
 			.attr('r', 10)
 			.on('click', function(d, i) {
-
 				that._clickNode(d, i, d3.select(this));
-
-				var width = d3.select(this).classed('selected') ? '6px' : '3px';
-				d3.select(this).style('stroke-width', width);
 			})
 			.on('mouseover', function(d, i) {
-				d3.select(this)
-					.style('stroke-width', '6px')
-					.style('cursor', 'pointer');
+				d3.select(this).classed({ 'hover': true });
 			})
 			.on('mouseout', function(d, i) {
 				if (!d3.select(this).classed('selected')) {
-					d3.select(this)
-						.style('stroke-width', '3px')
-						.style('cursor', 'pointer');
+					d3.select(this).classed({ 'hover': false });
 				}
 			})
 			.style('stroke', function(d) {
 				return that.color(d.pos);
-			})
-			.style('stroke-width', '3px')
-			.style('fill', function(d) {
-				return '#FFF';
 			});
 
 		// Value of the Node
@@ -290,17 +290,16 @@ define(['d3'], function(d3) {
 				return (d.pos == 'root') ? -30 : 15;
 			})
 			.attr('dy', '14px')
+			.attr('lang', function(d, i) {
+				return that.config.lang;
+			})
 			.attr('text-anchor', 'middle')
 			.text(function(d) {
 				return d.value;
 			})
 			.style('fill', function(d, i) {
 				return (d.pos == 'root') ? '#CCC' : '#333';
-			})
-			.style('font-family', 'Cambria, Serif')
-			.style('letter-spacing', '2px')
-			.style('font-size', '18px')
-			.style('fill-opacity', 1);
+			});
 
 		// Relation of Node to Parent
 		nodeEnter.append('text')
@@ -310,11 +309,6 @@ define(['d3'], function(d3) {
 			.attr('dy', '12px')
 			.attr('text-anchor', 'middle')
 			.attr('class', 'label')
-			.style('font-family', 'sans-serif')
-			.style('font-size', '12px')
-			.style('font-weight', 500)
-			.style('letter-spacing', '1px')
-			.style('fill', '#666')
 			.text(function(d) {
 				return d.relation;
 			});
