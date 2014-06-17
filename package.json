@@ -2,7 +2,7 @@
   "name": "daphne",
   "version": "0.0.1",
   "description": "Library for interacting with parse trees built in d3.",
-  "main": "daphne.js",
+  "main": "src/daphne.js",
   "directories": {
     "test": "test"
   },
@@ -16,6 +16,8 @@
     "grunt-cli": "^0.1.13",
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-uglify": "^0.5.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-sass": "^0.13.1",
     "jsdom": "^0.10.6",
     "mocha": "^1.20.1",
     "mocha-phantomjs": "^3.4.1",

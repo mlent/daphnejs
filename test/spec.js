@@ -1,18 +1,29 @@
-define(['daphne'], function(Daphne) {
+define(['src/daphne'], function(Daphne) {
 	suite('Daphne', function() {
 
-		var daphne;
+		var daphne, el;
 
 		setup(function(done) {
-			var el = document.createElement('div'); 
+			el = document.createElement('div'); 
 			document.body.appendChild(el);
 			daphne = new Daphne('div'); 
 
 			done();
 		});
 
+		/*suite('manualData', function() {
+			var data = {[
+				{ id: 1, head: 3, relation: "OBJ", value: "ταῦτα" },
+				{ id: 2, head: 3, relation: "AuxY", value: "γὰρ" },
+				{ id: 3, head: 0, relation: "PRED", value: "εἶχον", },
+				{ id: 4, head: 3, relation: "SBJ", value: "Ἀθηναῖοι" },
+				{ id: 5, head: 1, relation: "ATR", value: "Πελοποννησίων" },
+				{ id: 6, head: 0, relation: "AuxK", value: "." }
+				]};
+		});*/
+
 		suite('removeChild', function() {
-			test('removeChild should remove child from array of children', function() {
+			test('remove child from middle ', function() {
 				
 				var children = [
 					{ 'id' : 1 },

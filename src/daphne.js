@@ -2,38 +2,19 @@ define(['d3'], function(d3) {
 
 	'use strict';
 
-	// Implement .bind so PhantomJS can still test our code
-	if (!Function.prototype.bind) {
-		Function.prototype.bind = function (oThis) {
-			if (typeof this !== "function") {
-				// closest thing possible to the ECMAScript 5
-				// internal IsCallable function
-				throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
-			}
-
-			var aArgs = Array.prototype.slice.call(arguments, 1), 
-				FToBind = this, 
-				FNOP = function () {},
-				FBound = function () {
-					return FToBind.apply(this instanceof FNOP && oThis ? this : oThis,
-						aArgs.concat(Array.prototype.slice.call(arguments)));
-				};
-
-			FNOP.prototype = this.prototype;
-			FBound.prototype = new FNOP();
-
-			return FBound;
-		};
-	}
-
 	function daphne(selector, options) {
 
 		/*jshint validthis:true */
 		this.el = document.querySelector(selector);
 		this.options = options || {};
 
-		if (this.el === null)
+		if (this.el === null) {
 			console.log("Could not find DOM object");
+			return this;
+		}
+
+		// Build the DOM a bit
+		this.el.className = 'daphne';
 
 		this.init();
 		return this;
@@ -62,11 +43,15 @@ define(['d3'], function(d3) {
 	 */ 
 	daphne.prototype.init = function() {
 
-		this.config = this.extend({}, this.defaults, this.options);
-		this.el.addEventListener('populated', this.render.bind(this));
+		this.config = this._extend({}, this.defaults, this.options);
 
-		// TODO: Allow user to pass in data instead of getting it from a URL.
-		this._fetchData();
+		// Pass in a URL as data-source, or an array of word objects as a 'data' option
+		if (!this.config.data) {
+			this.el.addEventListener('populated', this.render.bind(this));
+			this._fetchData();
+		}
+		else
+			this.data = this._convertData(this.config.data);
 
 		return this;
 	};
@@ -74,7 +59,7 @@ define(['d3'], function(d3) {
 	/**
 	 * Utility method for merging two objects.
 	 */ 
-	daphne.prototype.extend = function(out) {
+	daphne.prototype._extend = function(out) {
 		out = out || {};
 
 		for (var i = 1; i < arguments.length; i++) {
@@ -521,6 +506,34 @@ define(['d3'], function(d3) {
 			}
 		}
 	};
+
+	// ------------------------- //
+	// Utility Functions         //
+	// ------------------------- //
+
+	if (!Function.prototype.bind) {
+		/**
+		 * Implement bind() so that PhantomJS can test our code.
+		 */
+		Function.prototype.bind = function (oThis) {
+			if (typeof this !== "function") {
+				throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+			}
+
+			var aArgs = Array.prototype.slice.call(arguments, 1), 
+				FToBind = this, 
+				FNOP = function () {},
+				FBound = function () {
+					return FToBind.apply(this instanceof FNOP && oThis ? this : oThis,
+						aArgs.concat(Array.prototype.slice.call(arguments)));
+				};
+
+			FNOP.prototype = this.prototype;
+			FBound.prototype = new FNOP();
+
+			return FBound;
+		};
+	}
 
 	return daphne;
 

@@ -1,6 +1,6 @@
 {
   "name": "daphne",
-  "main": "daphne.js",
+  "main": "src/daphne.js",
   "version": "0.0.1",
   "homepage": "http://mlent.github.io/daphnejs",
   "authors": [
