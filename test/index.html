@@ -14,6 +14,10 @@
 	<script src="../node_modules/grunt-blanket-mocha/support/mocha-blanket.js"></script>
 
 	<script>
+		blanket.options('debug', true);
+		blanket.options('antifilter', ['//node_modules/', '//bower_components/', 'main', '//test/']);
+		blanket.options('branchTracking', true);
+
 		if (window.PHANTOMJS) {
 			blanket.options("reporter", "../node_modules/grunt-blanket-mocha/support/grunt-reporter.js");
 		}

@@ -19,8 +19,6 @@ require(['chai'], function(chai) {
 	mocha.setup("tdd");
 
 	console.log(blanket);
-	/*blanket.options('filter', ['daphne.js']);
-	blanket.options('branchTracking', true);*/
 
 	require(['test/spec'], function() {
 		mocha.run();

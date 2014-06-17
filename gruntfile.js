@@ -14,7 +14,13 @@ module.exports = function(grunt) {
 			all: ['test/index.html'],
 			options: {
 				threshold: 70,
-				run: false 
+				run: false,
+				excludedFiles: [
+					'node_modules/chai/chai',
+					'node_modules/d3/d3',
+					'test/spec.js',
+					'test/main.js'
+				]
 			}
 		},
 		jshint: {
