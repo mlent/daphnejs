@@ -13,7 +13,7 @@ $text-selected-color: #333;
 			stroke-width: 3px;
 			fill: #FFF;
 
-			&.hover, &.selected {
+			&:hover, &.selected {
 				stroke-width: 6px !important;
 				cursor: pointer;
 			}

@@ -273,14 +273,6 @@ define(['d3'], function(d3) {
 			.on('click', function(d, i) {
 				that._clickNode(d, i, d3.select(this));
 			})
-			.on('mouseover', function(d, i) {
-				d3.select(this).classed({ 'hover': true });
-			})
-			.on('mouseout', function(d, i) {
-				if (!d3.select(this).classed('selected')) {
-					d3.select(this).classed({ 'hover': false });
-				}
-			})
 			.style('stroke', function(d) {
 				return that.color(d.pos);
 			});
