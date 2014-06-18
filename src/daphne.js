@@ -379,29 +379,13 @@ define(['d3'], function(d3) {
 			var parent = d;
 			var child = (parent.id != selected[0].id) ? selected[0] : selected[1];
 
-			// Means: Child is already assigned to this parent, or they're trying to move the root
-			if (parent.id == child.parent.id || child.pos == 'root') {
+			if (!this._validMove(child, parent)) {
 				this.svg.selectAll('circle').each(function(d, i) {
 					d3.select(this).classed({ 'selected': false });
 				});
-
-				console.log("Child is already assigned to this parent, or you're trying to move the root.");
-				// TODO: Display an error message to explain to user why their move was invalid
 			}
-			// Means: They're trying to make an ancestor the child of one of its descendants
-			else if (this._isAncestor(child, parent.id)) {
-				this.svg.selectAll('circle').each(function(d, i) {
-					d3.select(this).classed({ 'selected': false });
-				});
-
-				console.log("Trying to make an ancestor the child of one of its descendants.");
-				// TODO: Display an error message to explain to user why their move was invalid
-			}
-			// Means: They're legitimately moving a node
 			else {
-
-				console.log("valid move");
-
+		
 				// Add child to new parent, remove from former parent
 				parent.children = this._insertChild(parent.children, child);
 				child.parent.children = this._removeChild(child.parent.children, child);
@@ -423,6 +407,30 @@ define(['d3'], function(d3) {
 				this.el.querySelector('span[data-id="' + child.id + '"]').className = '';
 			}.bind(this), 500);
 		}
+	};
+
+	/**
+	 * Determine whether the move they're trying to make is valid.
+	 * @param {object} child - node that will move.
+	 * @param {object} parent - node to become the parent of child node.
+	 */
+	daphne.prototype._validMove = function(child, parent) {
+		
+		if (parent.id === child.parent.id) {
+			console.log("Child is already assigned to this parent.");
+			return false;
+		}
+		else if (child.pos === 'root') {
+			console.log("Cannot move root.");
+			return false;
+		}
+		else if (this._isAncestor(child, parent.id)) {
+			console.log("Cannot make an ancestor the child of one of its descendants.");
+			return false;
+		}
+		
+		console.log("Valid Move");
+		return true;
 	};
 
 	/**
