@@ -330,7 +330,7 @@ define(['d3'], function(d3) {
 			})
 			.style('fill', function(d) {
 				if (d3.select(this).classed('match'))
-					return d3.rbg(that.color(d.pos)).brighter();
+					return d3.rgb(that.color(d.pos)).brighter();
 				else
 					return '#FFF';
 			});
@@ -407,7 +407,6 @@ define(['d3'], function(d3) {
 			if (d3.select(this).classed('selected')) selected.push(d); 
 		});
 
-
 		// If two nodes are selected, update links
 		if (selected.length == 2) {
 			var parent = d;
@@ -425,9 +424,19 @@ define(['d3'], function(d3) {
 				this._update(parent);
 
 				// If the user is playing, check the connection for a match
-				if (this.config.mode == 'play' && this._checkMatch(child, parent)) {
-					if (this._checkCompletion())
+				if (this.config.mode == 'play') {
+
+					var childNode = this.svg.selectAll('circle').filter(function(d, i) {
+						return d.id == child.id;
+					});
+
+					var match = this._checkMatch(child, parent);
+					childNode.classed({ 'match' : match });
+					this._update(childNode);
+
+					if (this._checkCompletion()) {
 						console.log("complete!");
+					}
 				}
 
 			}
