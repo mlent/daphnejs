@@ -17,6 +17,6 @@ requirejs.config({
 
 require(['daphne'], function(Daphne) {
 
-	var x = new Daphne('div', { width: 250, height: 200, initialScale: 0.7 });
+	var x = new Daphne('div', { mode: 'play', width: 250, height: 200, initialScale: 0.7 });
 
 });

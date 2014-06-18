@@ -27,7 +27,7 @@ define(['d3'], function(d3) {
 	daphne.prototype.defaults = {
 		mode: 'edit',
 		lang: 'grc',
-		source: 'http://monicalent.com/daphne/demo/data.json', 	// For testing purposes, will be removed
+		source: 'data.json',
 		marginTop: 50,
 		marginRight: 0,
 		marginBottom: 50,
@@ -318,7 +318,10 @@ define(['d3'], function(d3) {
 				return that.color(d.pos);
 			})
 			.style('fill', function(d) {
-				return '#FFF';
+				if (d3.select(this).classed('match'))
+					return d3.rbg(that.color(d.pos)).brighter();
+				else
+					return '#FFF';
 			});
 
 		var link = this.svg.select('.canvas g').selectAll('path.link')
@@ -346,6 +349,30 @@ define(['d3'], function(d3) {
 		});
 	};
 
+	daphne.prototype._deselectNode = function(d, node) {
+		node.classed({ 'selected': false });
+		if (d.pos !== 'root')
+			this.el.querySelector('span[data-id="' + d.id + '"]').className = '';
+	};
+
+	daphne.prototype._selectNode = function(d, node) {
+		node.classed({ 'selected': true });
+		if (d.pos !== 'root')
+			this.el.querySelector('span[data-id="' + d.id + '"]').className = 'selected';
+	};
+
+	daphne.prototype._deselectAllNodes = function() {
+		var nodes = [];
+		this.svg.selectAll('circle').each(function(d, i) {
+			nodes.push({ d: d, node: d3.select(this) });
+		});
+
+		setTimeout(function() {
+			for (var i = 0; i < nodes.length; i++)
+				this._deselectNode(nodes[i].d, nodes[i].node);
+		}.bind(this), 500);
+	};
+
 	// TODO: Break down this click handler into much smaller parts...
 	/**
 	 * Click handler for a node. Decides whether to select, deselect, or move a node.
@@ -357,55 +384,43 @@ define(['d3'], function(d3) {
 
 		// If the node was previously selected, then unselect it
 		if (node.classed('selected')) {
-			node.classed({ 'selected': false }); 
-			this.el.querySelector('span[data-id="' + d.id + '"]').className = '';
+			this._deselectNode(d, node);
 			return;
 		}
-		else
-			node.classed({ 'selected': true });
 
-		// Highlight the word in the sentence
-		this.el.querySelector('span[data-id="' + d.id + '"]').className = 'selected';
+		this._selectNode(d, node);
 
 		// Otherwise, check to see if it's time to update links
-		// Step 1: See if another node is also selected
 		var selected = [];
 		this.svg.selectAll('circle').each(function(d, i) {
 			if (d3.select(this).classed('selected')) selected.push(d); 
 		});
 
-		// Step 2: If two nodes are selected, update links
+		// If two nodes are selected, update links
 		if (selected.length == 2) {
 			var parent = d;
 			var child = (parent.id != selected[0].id) ? selected[0] : selected[1];
 
-			if (!this._validMove(child, parent)) {
-				this.svg.selectAll('circle').each(function(d, i) {
-					d3.select(this).classed({ 'selected': false });
-				});
-			}
-			else {
-		
+			if (this._validMove(child, parent)) {
+
 				// Add child to new parent, remove from former parent
 				parent.children = this._insertChild(parent.children, child);
 				child.parent.children = this._removeChild(child.parent.children, child);
-
 				child.parent = parent;
 				child.head = parent.id;
-				this._update(parent);
-				this._checkConnection(child);
 
-				// Now, reset state of tree to unselected everything 
-				this.svg.selectAll('circle').each(function(d, i) {
-					d3.select(this).classed({ 'selected': false });
-				});
+				// Update our tree
+				this._update(parent);
+
+				// If the user is playing, check the connection for a match
+				if (this.config.mode == 'play' && this._checkMatch(child, parent)) {
+					if (this._checkCompletion())
+						console.log("complete!");
+				}
 
 			}
 
-			setTimeout(function() {
-				this.el.querySelector('span[data-id="' + parent.id + '"]').className = '';
-				this.el.querySelector('span[data-id="' + child.id + '"]').className = '';
-			}.bind(this), 500);
+			this._deselectAllNodes();
 		}
 	};
 
@@ -490,21 +505,69 @@ define(['d3'], function(d3) {
 	};
 
 	/**
-	 * Determine whether the child has been appended to the gold-standard-compliant parent.
+	 * Helper function for _clickNode -- Determine whether the child has been appended to the 
+	 * gold-standard parent.
 	 * @param {object} child - the child node to check.
+	 * @param {object} parent - the parent to check.
 	 */
-	daphne.prototype._checkConnection = function(child) {
-		// TODO: Make this work
+	daphne.prototype._checkMatch = function(child, parent) {
+
+		if (!this.answers) {
+			console.log("Cannot check connection without data to check against.");
+			return false;
+		}
+
+		var correct;
+
 		for (var i = 0; i < this.answers; i++) {
 			if (child.id == this.answers[i].id) {
-				if (child.parent.id == this.answers[i].head)
-					console.log("correct connection");
-				else
-					console.log("wrong answer");
-
+				correct = (parent.id == this.answers[i].head);
 				break;
 			}
 		}
+
+		return correct;
+	};
+
+	/**
+	 * Helper function for _clickNode -- Checks whether the tree is complete based on stored 
+	 * answers. Then triggers tree to update, so the unmoved but correct nodes can be marked.
+	 */
+	daphne.prototype._checkCompletion = function() {
+		var complete = true, that = this, rootChildren = [], updateNodes = [];
+
+		var answerMap = this.answers.reduce(function(map, node) {
+			map[node.id] = node;
+			return map;
+		});
+
+		this.svg.selectAll('circle').each(function(d, i) {
+
+			// Don't check the root
+			if (d.pos === 'root')
+				return;
+			
+			// Monitor tree completion
+			if (d.head == answerMap[d.id]["head"])
+				complete = complete ? true : false;
+			else
+				complete = false;
+
+			// If the node is a child of root, we have to count it is as correct without
+			// requiring the user to move the node
+			if (d.head == that.root.id) {
+				rootChildren.push(this);
+				updateNodes.push(d);
+			}
+		});
+
+		if (complete) {
+			for (var i = 0; i < rootChildren.length; i++) {
+				this._update(updateNodes[i]);
+			}
+		}
+
+		return complete;
 	};
 
 	// ------------------------- //
