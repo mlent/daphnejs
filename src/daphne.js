@@ -151,6 +151,8 @@ define(['d3'], function(d3) {
 				treeData.push(node);
 		});
 
+		console.log(treeData);
+
 		return treeData;
 	};
 
@@ -396,6 +398,7 @@ define(['d3'], function(d3) {
 			if (d3.select(this).classed('selected')) selected.push(d); 
 		});
 
+
 		// If two nodes are selected, update links
 		if (selected.length == 2) {
 			var parent = d;
@@ -422,6 +425,7 @@ define(['d3'], function(d3) {
 
 			this._deselectAllNodes();
 		}
+		
 	};
 
 	/**
@@ -519,12 +523,14 @@ define(['d3'], function(d3) {
 
 		var correct;
 
-		for (var i = 0; i < this.answers; i++) {
+		for (var i = 0; i < this.answers.length; i++) {
 			if (child.id == this.answers[i].id) {
 				correct = (parent.id == this.answers[i].head);
 				break;
 			}
 		}
+
+		console.log("connection was " + (correct ? "correct" : "incorrect"));
 
 		return correct;
 	};
@@ -536,10 +542,10 @@ define(['d3'], function(d3) {
 	daphne.prototype._checkCompletion = function() {
 		var complete = true, that = this, rootChildren = [], updateNodes = [];
 
-		var answerMap = this.answers.reduce(function(map, node) {
-			map[node.id] = node;
-			return map;
-		});
+		var answerMap = this.answers.reduce(function(m, node) {
+			m[node.id] = node;
+			return m;
+		}, []);
 
 		this.svg.selectAll('circle').each(function(d, i) {
 
@@ -548,14 +554,14 @@ define(['d3'], function(d3) {
 				return;
 			
 			// Monitor tree completion
-			if (d.head == answerMap[d.id]["head"])
+			if (d.parent.id == answerMap[d.id]["head"])
 				complete = complete ? true : false;
 			else
 				complete = false;
 
 			// If the node is a child of root, we have to count it is as correct without
 			// requiring the user to move the node
-			if (d.head == that.root.id) {
+			if (d.parent.id == that.root.id) {
 				rootChildren.push(this);
 				updateNodes.push(d);
 			}
