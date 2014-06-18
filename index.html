@@ -2,7 +2,8 @@
 <html>
 <head>
 
-	<script data-main="js/main" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.11/require.min.js"></script>
+	<script data-main="demo/main" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.11/require.min.js"></script>
+	<link rel="stylesheet" href="dist/daphne.css" type="text/css">
 
 <style>
 body {
@@ -35,16 +36,19 @@ h1, h2, h3, h4, h5, h6 {
 
 </head>
 <body>
+<div data-toggle="daphne" data-mode="edit" style="width: 800px; float: left; margin-right: 50px"></div>
 <h1>Daphne.js (<a href="http://github.com/mlent/daphnejs">Github</a>)</h1>
 <p>
 	Library for creating, editing, and checking parse trees. Its only dependency is d3.
 </p>
 
 <p>
+	<strong>Daphne is currently in development mode and does not have a stable version.</strong> 
+</p>
+
+<p>
 	Click a node and its new parent to move nodes within the parse tree. 
 </p>
-<div data-toggle="daphne" data-mode="edit" style="border: 1px solid #EEE"></div>
-
 <h2>Features</h2>
 <ul>
 	<li> Ingests flat data with id and head attributes, and builds their parse tree.</li>
