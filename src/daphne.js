@@ -126,25 +126,36 @@ define(['d3'], function(d3) {
 			return map;
 		}, {});
 
-		// Calc root node, and append it to our datasets 
-		var rid = 0, node = {};
+		// Calculate root node, and append it to our datasets 
+		var rid = 0;
 		for (var i = 0; i < words.length; i++) {
-			node = words[i];
-			if (dataMap[node.head] === undefined)
-				break;	
+			var node = words[i];
+			if (dataMap[node.head] === undefined) {
+				rid = node.head;
+				var rootNode = { 'id': rid, 'value': 'root', 'pos': 'root' };
+
+				words.push(rootNode);
+				dataMap[rid] = rootNode;
+
+				break;
+			}
 		}
 
-		var rootNode = { 'id': node.head, 'value': 'root', 'pos': 'root' };
-		words.push(rootNode);
-		dataMap[node.head] = rootNode;
+		// If creating, update all head attrs.
+		if (this.config.mode == 'play') {
+			Object.keys(dataMap).forEach(function(id) {
+				if (dataMap[id]["pos"] !== 'root')
+					dataMap[id]["head"] = rid; 
+			});
+			words.forEach(function(node) {
+				if (node.pos !== 'root')
+					node.head = rid;
+			});
+		}
 
 		var treeData = [];
 		words.forEach(function(node) {
-
-			// If we're in 'play' mode, reset head property of all nodes to the root node
-			var head = (that.config.mode == 'play' && node.pos != 'root') ? dataMap[rootNode.id] : dataMap[node.head];
-
-			// Then, create the hierarchical data d3 needs
+			var head = dataMap[node.head];
 			if (head)
 				(head.children || (head.children = [])).push(node);
 			else
@@ -255,7 +266,7 @@ define(['d3'], function(d3) {
 
 		var node = this.svg.select('.canvas g').selectAll('g.node')
 			.data(nodes, function(d, i) {
-				return d.id || (d.id = ++i);
+				return d.id;
 			});
 
 		var nodeEnter = node.enter().append('g')
@@ -319,7 +330,7 @@ define(['d3'], function(d3) {
 			})
 			.style('fill', function(d) {
 				if (d3.select(this).classed('match'))
-					return d3.rbg(that.color(d.pos)).brighter();
+					return d3.rgb(that.color(d.pos)).brighter();
 				else
 					return '#FFF';
 			});
@@ -413,15 +424,26 @@ define(['d3'], function(d3) {
 				this._update(parent);
 
 				// If the user is playing, check the connection for a match
-				if (this.config.mode == 'play' && this._checkMatch(child, parent)) {
-					if (this._checkCompletion())
+				if (this.config.mode == 'play') {
+
+					var childNode = this.svg.selectAll('circle').filter(function(d, i) {
+						return d.id == child.id;
+					});
+
+					var match = this._checkMatch(child, parent);
+					childNode.classed({ 'match' : match });
+					this._update(childNode);
+
+					if (this._checkCompletion()) {
 						console.log("complete!");
+					}
 				}
 
 			}
 
 			this._deselectAllNodes();
 		}
+		
 	};
 
 	/**
@@ -475,6 +497,7 @@ define(['d3'], function(d3) {
 	 * @param {object} child - child to insert into array of children.
 	 */
 	daphne.prototype._insertChild = function(children, child) {
+		
 		if (!children)
 			children = [];
 
@@ -485,6 +508,7 @@ define(['d3'], function(d3) {
 		}
 
 		children.splice(i, 0, child);
+
 		return children;
 	};
 
@@ -519,12 +543,14 @@ define(['d3'], function(d3) {
 
 		var correct;
 
-		for (var i = 0; i < this.answers; i++) {
+		for (var i = 0; i < this.answers.length; i++) {
 			if (child.id == this.answers[i].id) {
-				correct = (parent.id == this.answers[i].head);
+				correct = (parent.id === this.answers[i].head);
 				break;
 			}
 		}
+
+		console.log("connection was " + (correct ? "correct" : "incorrect"));
 
 		return correct;
 	};
@@ -536,10 +562,10 @@ define(['d3'], function(d3) {
 	daphne.prototype._checkCompletion = function() {
 		var complete = true, that = this, rootChildren = [], updateNodes = [];
 
-		var answerMap = this.answers.reduce(function(map, node) {
-			map[node.id] = node;
-			return map;
-		});
+		var answerMap = this.answers.reduce(function(m, node) {
+			m[node.id] = node;
+			return m;
+		}, []);
 
 		this.svg.selectAll('circle').each(function(d, i) {
 
@@ -548,14 +574,14 @@ define(['d3'], function(d3) {
 				return;
 			
 			// Monitor tree completion
-			if (d.head == answerMap[d.id]["head"])
+			if (d.parent.id == answerMap[d.id]["head"])
 				complete = complete ? true : false;
 			else
 				complete = false;
 
 			// If the node is a child of root, we have to count it is as correct without
 			// requiring the user to move the node
-			if (d.head == that.root.id) {
+			if (d.parent.id == that.root.id) {
 				rootChildren.push(this);
 				updateNodes.push(d);
 			}
