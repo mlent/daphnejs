@@ -25,21 +25,17 @@ define(['d3'], function(d3) {
 
 	// Plugin Methods + Shared Properties
 	daphne.prototype.defaults = {
-		'mode': 'edit',
-		'lang': 'grc',
-		'source': 'http://monicalent.com/daphne/demo/data.json', 	// For testing purposes, will be removed
-		'dimensions': {
-			'margins': {
-				'top': 50,
-				'right': 0,
-				'bottom': 50,
-				'left': 0
-			},
-			'width': 600,
-			'height': 600,
-			'initialScale': 0.9
-		},
-		'duration': 500
+		mode: 'edit',
+		lang: 'grc',
+		source: 'http://monicalent.com/daphne/demo/data.json', 	// For testing purposes, will be removed
+		marginTop: 50,
+		marginRight: 0,
+		marginBottom: 50,
+		marginLeft: 0,
+		width: 400,
+		height: 400,
+		initialScale: 0.9,
+		duration: 500
 	};
 
 	/**
@@ -201,9 +197,9 @@ define(['d3'], function(d3) {
 			.attr('class', 'canvas');
 		this.canvas.append('g')
 			.attr('transform', 'translate(' + 
-				(that.config.dimensions.width) + ', ' + 
-				that.config.dimensions.margins.top + ') scale(' + 
-				that.config.dimensions.initialScale + 
+				(that.config.width) + ', ' + 
+				that.config.marginTop + ') scale(' + 
+				that.config.initialScale + 
 			')');
 
 		// Bind zoom behavior to zoom function
@@ -224,10 +220,10 @@ define(['d3'], function(d3) {
 	daphne.prototype._zoom = function() {
 		var scale = d3.event.scale,
 			trans = d3.event.translate,
-			tbound = -this.config.dimensions.height * scale,
-			bbound = this.config.dimensions.height * scale,
-			lbound = (-this.config.dimensions.width + this.config.dimensions.margins.right) * scale,
-			rbound = (this.config.dimensions.width + this.config.dimensions.margins.left) * scale;
+			tbound = -this.config.height * scale,
+			bbound = this.config.height * scale,
+			lbound = (-this.config.width + this.config.marginRight) * scale,
+			rbound = (this.config.width + this.config.marginLeft) * scale;
 
 		var translation = [
 			Math.max(Math.min(trans[0], rbound), lbound),
