@@ -92,6 +92,7 @@ define(['d3'], function(d3) {
 		else if (typeof config  === 'undefined') {
 			this.config.config = { "fields": [ 
 				{ "name": "value", "type": "text", "label": "Value" },
+				{ "name": "pos", "type": "text", "label": "Part of Speech"},
 				{ "name": "relation", "type": "text", "label": "Relation" }]
 			};
 		}
@@ -527,16 +528,29 @@ define(['d3'], function(d3) {
 		if (this.footer.querySelector('form') == null) {
 			var form = document.createElement('form');
 			var fields = this.config.config.fields;
-			var frag = document.createDocumentFragment();
 
 			// Use their config file to append appropriate fields
 			for (var i = 0; i < fields.length; i++) {
+				var div = document.createElement('div');
+				div.setAttribute('data-name', fields[i].name);
+
 				var label = document.createElement('label');
 				label.innerHTML = fields[i].label;
-				frag.appendChild(label);
+				label.setAttribute('for', fields[i].name);
+				div.appendChild(label);
 
-				var el = document.createElement(fields[i].type);
+				var el;
+				if (fields[i].type == 'text') {
+					el = document.createElement('input');
+					el.type = 'text';
+				}
+				else 
+					el = document.createElement(fields[i].type);
+
 				el.name = fields[i].name;
+
+				if (fields[i].name == 'pos')
+					el.onchange = this._showFields.bind(this);
 
 				// The dreaded nested for-loop, for appending select options
 				for (var key in fields[i].options) {
@@ -548,13 +562,46 @@ define(['d3'], function(d3) {
 					}
 				}
 
-				frag.appendChild(el);
+				div.appendChild(el);
+				form.appendChild(div);
 			}
 
-			form.appendChild(frag);
 			this.footer.appendChild(form);
 		}
 
+		this.footer.className = 'footer open';
+		this._showFields();
+	};
+
+	daphne.prototype._showFields = function() {
+		var form = this.footer.querySelector('form'),
+			el = form.querySelector('select[name="pos"]'),
+			pos = el.options[el.selectedIndex].value,
+			els = form.querySelectorAll('[data-name]');
+
+		// Create quick lookup object to retrieve fields by name attr
+		var lookup = {}, fields = this.config.config.fields;
+		for (var i = 0, len = fields.length; i < len; i++)
+			lookup[fields[i].name] = fields[i];
+
+		// Display only the fields appropriate based on conf file
+		for (var i = 0; i < els.length; i++) {
+			var name = els[i].getAttribute('data-name');
+			if (lookup[name].exclude && lookup[name].exclude.indexOf(pos) !== -1) {
+				els[i].className = 'hidden';
+				continue;
+			}
+			if (lookup[name].include && lookup[name].include.indexOf(pos) !== -1) {
+				els[i].className = 'shown';
+				continue;
+			}
+			if (lookup[name].include && lookup[name].include.indexOf(pos) === -1) {
+				els[i].className = 'hidden';
+				continue;
+			}
+			
+			els[i].className = 'shown';
+		}
 	};
 
 	daphne.prototype._editNode = function() {

@@ -27,10 +27,10 @@ require(['daphne'], function(Daphne) {
 	];
 
 	new Daphne('div', { 
-		mode: 'play', 
+		mode: 'edit', 
 		data: words, 
-		width: 500, 
-		height: 400, 
+		width: 1000, 
+		height: 500, 
 		initialScale: 0.8,
 		config: '../src/conf.json'
 	});
