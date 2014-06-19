@@ -341,10 +341,7 @@ define(['d3'], function(d3) {
 				that._clickNode(d, i, d3.select(this));
 			})
 			.on('dblclick', function(d, i) {
-				if (that.config.mode === 'display')
-					return false;
-				else
-					that._editNode(d, i, d3.select(this));
+				that._viewNodeProperties(d, i, d3.select(this));
 			})
 			.style('stroke', function(d) {
 				return that.color(d.pos);
@@ -518,7 +515,49 @@ define(['d3'], function(d3) {
 	 * @param {number} i - clicked node's index
 	 * @param {object} node - reference to the d3 selection of the node
 	 */
-	daphne.prototype._editNode = function(d, i, node) {
+	daphne.prototype._viewNodeProperties = function(d, i, node) {
+		this._renderForm();
+
+			
+	};
+	
+	daphne.prototype._renderForm = function() {
+
+		// If the form element doesn't exist yet, create it
+		if (this.footer.querySelector('form') == null) {
+			var form = document.createElement('form');
+			var fields = this.config.config.fields;
+			var frag = document.createDocumentFragment();
+
+			// Use their config file to append appropriate fields
+			for (var i = 0; i < fields.length; i++) {
+				var label = document.createElement('label');
+				label.innerHTML = fields[i].label;
+				frag.appendChild(label);
+
+				var el = document.createElement(fields[i].type);
+				el.name = fields[i].name;
+
+				// The dreaded nested for-loop, for appending select options
+				for (var key in fields[i].options) {
+					if (fields[i].options.hasOwnProperty(key)) {
+						var opt = document.createElement('option');
+						opt.innerHTML = fields[i].options[key];
+						opt.value = key;
+						el.appendChild(opt);
+					}
+				}
+
+				frag.appendChild(el);
+			}
+
+			form.appendChild(frag);
+			this.footer.appendChild(form);
+		}
+
+	};
+
+	daphne.prototype._editNode = function() {
 
 	};
 
