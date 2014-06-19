@@ -6,7 +6,23 @@ define(['src/daphne'], function(Daphne) {
 		setup(function(done) {
 			el = document.createElement('div'); 
 			document.body.appendChild(el);
-			daphne = new Daphne('div'); 
+
+			var words = [
+				{ id: 1, head: 3, relation: "OBJ", value: "ταῦτα" },
+				{ id: 2, head: 3, relation: "AuxY", value: "γὰρ" },
+				{ id: 3, head: 0, relation: "PRED", value: "εἶχον", },
+				{ id: 4, head: 3, relation: "SBJ", value: "Ἀθηναῖοι" },
+				{ id: 5, head: 1, relation: "ATR", value: "Πελοποννησίων" },
+				{ id: 6, head: 0, relation: "AuxK", value: "." }
+			];
+
+			daphne = new Daphne('div', { 
+				mode: 'play', 
+				data: words, 
+				width: 500, 
+				height: 400, 
+				initialScale: 0.8 
+			});
 
 			done();
 		});

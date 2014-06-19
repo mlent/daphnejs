@@ -13,12 +13,6 @@ define(['d3'], function(d3) {
 			return this;
 		}
 
-		// Build the DOM a bit
-		this.el.className = 'daphne';
-		this.header = document.createElement('div');
-		this.header.className = 'sentence';
-		this.el.appendChild(this.header);
-
 		this.init();
 		return this;
 	}
@@ -28,7 +22,6 @@ define(['d3'], function(d3) {
 		mode: 'edit',						// [str] How you want to interact with the tree. Opts: Edit, Play, Create, Display
 		lang: 'grc',						// [str] Language of sentence being treebanked. Should correspond in daphne.css.
 		data: null,							// [array<json>] Accepts array of JSON objects (the words in the sentence)
-		dataSource: null,					// [str] API Endpoint to give us the data
 		marginTop: 50,						// [number] Tree display - margins
 		marginRight: 0,
 		marginBottom: 50,
@@ -38,7 +31,8 @@ define(['d3'], function(d3) {
 		initialScale: 0.9,					// [number] Tree display - initial zoom level
 		duration: 500,						// [number] Time it takes for a node to mode (in milliseconds)
 		include: null, 						// [array<str>] Fields to include from the data in the editing panel [whitelist]
-		exclude: null						// [array<str>]Fields to exclude from the data in the editing panel [blacklist]
+		exclude: null,						// [array<str>]Fields to exclude from the data in the editing panel [blacklist]
+		config: null
 	};
 
 	/**
@@ -49,16 +43,58 @@ define(['d3'], function(d3) {
 		this.config = this._extend({}, this.defaults, this.options);
 
 		// Pass in a URL as data-source, or an array of word objects as a 'data' option
+		/*
+		TODO: Re-write logic to allow API endpoint + pass in a callback.
 		if (!this.config.data) {
-			this.el.addEventListener('populated', this.render.bind(this));
 			this._fetchData();
-		}
-		else {
-			this.data = this._convertData(this.config.data);
-			this.render();
-		}
+			this.el.addEventListener('populated', this.render.bind(this));
+		}*/
+
+		this._configureSettings(this.options.config);
+		this.data = this._convertData(this.config.data);
+		this.render();
 
 		return this;
+	};
+
+	/**
+	 * In order to output a file, user needs to be able to configure how they want to be able to work on the tree.
+	 * @param {object} config - the value the user has set for their configuration.
+	 */
+	daphne.prototype._configureSettings = function(config) {
+		// They've passed us an endpoint, fetch configuration
+		if (typeof config === 'string') {
+
+			var request = new XMLHttpRequest();
+			request.open('GET', config, false);
+
+			request.onload = function() {
+				if (request.status >= 200 && request.status < 400) {
+					this.config.config = JSON.parse(request.responseText);
+				}
+				else {
+					console.log("Reached server but server error occured while trying to fetch data");
+				}
+			}.bind(this);
+
+			request.onerror = function() {
+				console.log("Connection error while trying to fetch data.");
+			};
+
+			request.send();
+		}
+		// They've passed us the object, so use directly
+		// TODO: Validate against schema and log error if it doesn't match
+		else if (typeof config === 'object') {
+			this.config.config = config;
+		}
+		// Give them super basic configuration
+		else if (typeof config  === 'undefined') {
+			this.config.config = { "fields": [ 
+				{ "name": "value", "type": "text", "label": "Value" },
+				{ "name": "relation", "type": "text", "label": "Relation" }]
+			};
+		}
 	};
 
 	/**
@@ -149,8 +185,8 @@ define(['d3'], function(d3) {
 		// If creating, update all head attrs.
 		if (this.config.mode == 'play') {
 			Object.keys(dataMap).forEach(function(id) {
-				if (dataMap[id]["pos"] !== 'root')
-					dataMap[id]["head"] = rid; 
+				if (dataMap[id].pos !== 'root')
+					dataMap[id].head = rid; 
 			});
 			words.forEach(function(node) {
 				if (node.pos !== 'root')
@@ -176,6 +212,24 @@ define(['d3'], function(d3) {
 	daphne.prototype.render = function(e) {
 			
 		var that = this;
+
+		// Append sentence header 
+		this.el.className = 'daphne';
+		this.header = document.createElement('div');
+		this.header.className = 'sentence';
+		this.el.appendChild(this.header);
+
+		// And a link to view XML
+		this.xmlLink = document.createElement('a');
+		this.xmlLink.href = '#';
+		this.xmlLink.className = 'export-link xml';
+		this.xmlLink.appendChild(document.createTextNode('XML'));
+		this.el.appendChild(this.xmlLink);
+
+		// And the footer
+		this.footer = document.createElement('div');
+		this.footer.className = 'footer';
+		this.el.appendChild(this.footer);
 
 		// Put the sentence as a whole into the header
 		for (var i = 0; i < this.answers.length; i++) {
@@ -285,6 +339,12 @@ define(['d3'], function(d3) {
 			.attr('r', 10)
 			.on('click', function(d, i) {
 				that._clickNode(d, i, d3.select(this));
+			})
+			.on('dblclick', function(d, i) {
+				if (that.config.mode === 'display')
+					return false;
+				else
+					that._editNode(d, i, d3.select(this));
 			})
 			.style('stroke', function(d) {
 				return that.color(d.pos);
@@ -453,6 +513,16 @@ define(['d3'], function(d3) {
 	};
 
 	/**
+	 * Double click handler for a node. Allows users to edit its properties.
+	 * @param {object} d - data of the clicked node
+	 * @param {number} i - clicked node's index
+	 * @param {object} node - reference to the d3 selection of the node
+	 */
+	daphne.prototype._editNode = function(d, i, node) {
+
+	};
+
+	/**
 	 * Determine whether the move they're trying to make is valid.
 	 * @param {object} child - node that will move.
 	 * @param {object} parent - node to become the parent of child node.
@@ -580,7 +650,7 @@ define(['d3'], function(d3) {
 				return;
 			
 			// Monitor tree completion
-			if (d.parent.id == answerMap[d.id]["head"])
+			if (d.parent.id == answerMap[d.id].head)
 				complete = complete ? true : false;
 			else
 				complete = false;

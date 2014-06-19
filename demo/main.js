@@ -31,7 +31,8 @@ require(['daphne'], function(Daphne) {
 		data: words, 
 		width: 500, 
 		height: 400, 
-		initialScale: 0.8 
+		initialScale: 0.8,
+		config: '../src/conf.json'
 	});
 
 });

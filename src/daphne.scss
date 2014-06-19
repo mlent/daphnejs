@@ -8,6 +8,24 @@ $text-selected-color: #333;
 	border: 1px solid #EEE;
 	background-color: #FFF;
 	display: inline-block;
+	position: relative;
+	font-family: $main-font;
+
+	a {
+		font-size: 12px;
+
+		&.export-link {
+			display: inline-block;
+			text-decoration: none;
+			position: absolute;
+			margin: 5px;
+			right: 0;
+
+			&.xml {
+				color: #F39F09;
+			}
+		}
+	}
 
 	.node {
 		circle {
@@ -37,6 +55,15 @@ $text-selected-color: #333;
 				font-size: 12px;
 			}
 		}
+	}
+
+	.footer {
+		position: absolute;
+		bottom: 0;
+		width: 100%;
+		height: 10px;
+		border-top: 1px solid #EEE;
+		background-color: #FEFEFE;
 	}
 
 	.sentence {

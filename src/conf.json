@@ -1,0 +1,174 @@
+{ 
+	"fields": [ 
+		{
+			"name": "value",
+			"type": "Form element type to display",
+			"type": "text",
+
+			"label": "Human-readable label",
+			"label": "Value"
+		},
+		{
+			"name": "relation",
+			"type": "select",
+			"label": "Relation to Parent",
+
+			"options": "Options for a select element. Array if value & display are identical.",
+			"options": {
+				"PRED": "PRED",
+				"PRED_CO": "PRED_CO",
+				"SBJ": "SBJ",
+				"OBJ": "OBJ",
+				"ATR": "ADV",
+				"ATV": "ATV", 
+				"AtvV": "AtvV", 
+				"PNOM": "PNOM", 
+				"OCOMP": "APOS", 
+				"COORD": "COORD",
+				"AuxP": "AuxP",
+				"AuxC": "AuxC", 
+				"AuxR": "AuxR", 
+				"AuxY": "AuxY", 
+				"AuxX": "AuxX", 
+				"AuxG": "AuxG", 
+				"AuxK": "AuxK", 
+				"AuxV": "AuxV", 
+				"AuxZ": "AuxZ", 
+				"ExD": "ExD", 
+				"COORD_ExD0_PRED_CO": "COORD_ExD0_PRED_CO", 
+				"AuxP_ExD0_PRED_CO": "AuxP_ExD0_PRED_CO"
+			}
+		},
+		{
+			"name": "lemma",
+			"type": "text",
+			"label": "Lemma",
+
+			"placeholder": "Placeholder text for text input element",
+			"placeholder": "Nominative singular or first principle part.",
+
+			"exclude": "Blacklist POSes that are not relevant to this field. If exclude/include not specified, assumed rel. to all.",
+			"exclude": ["punct"]
+		},
+		{
+			"name": "pos",
+			"type": "select",
+			"label": "Part of Speech",
+
+			"options": "Value and display are not identical, so use json obj instead of string array (as above).",
+			"options": {
+				"adj": "Adjective",
+				"adverb": "Adverb",
+				"article": "article",
+				"exclam": "Exclamation",
+				"interjection": "Interjection",
+				"noun": "Noun",
+				"numeral": "Numeral",
+				"participle": "Participle",
+				"particle": "Particle",
+				"prep": "Preposition",
+				"pron": "Pronoun",
+				"punct": "Punctuation",
+				"verb": "Verb"
+			}
+		},
+		{
+			"name": "person",
+			"type": "select",
+			"label": "Person",
+			"options": {
+				"1st": "First",
+				"2nd": "Second",
+				"3rd": "Third"
+			},
+			"include": ["verb", "pronoun"]
+		},
+		{
+			"name": "number",
+			"type": "select",
+			"label": "Number",
+			"options": {
+				"sg": "Singular",
+				"pl": "Plural",
+				"dual": "Dual"
+			},
+			"include": ["verb", "participle", "adjective", "noun", "article"]
+		},
+		{
+			"name": "tense",
+			"type": "select",
+			"label": "Tense",
+			"options": {
+				"aor": "Aorist",
+				"fut": "Future",
+				"futperf": "Future Perfect",
+				"imperf": "Imperfect",
+				"perf": "Perfect",
+				"plup": "Pluperfect",
+				"pres": "Present"
+			},
+			"include": ["verb", "participle"]
+		},
+		{
+			"name": "voice",
+			"type": "select",
+			"label": "voice",
+			"options": {
+				"act": "Active",
+				"mid": "Middle",
+				"mp": "Middle-Passive",
+				"pass": "Passive"
+			},
+			"include": ["verb", "participle"]
+		},
+		{	
+			"name": "mood",
+			"type": "select",
+			"label": "Mood",
+			"options": {
+				"ind": "Indicative",
+				"subj": "Subjunctive",
+				"opt": "Optative",
+				"inf": "Infinitive",
+				"imperat": "Imperative",
+				"part": "Participle"
+			},
+			"include": ["verb", "participle"]
+		},
+		{
+			"name": "gender",
+			"type": "select",
+			"label": "Gender",
+			"options": {
+				"masc": "Masculine",
+				"fem": "Feminine",
+				"neut": "Neuter"
+			},
+			"include": ["noun", "participle", "adj", "article", "pronoun"]
+		},
+		{
+			"name": "case",
+			"type": "select",
+			"label": "Case",
+			"options": {
+				"nom": "Nominative",
+				"gen": "Genitive",
+				"dat": "Dative",
+				"acc": "Accusative",
+				"voc": "Vocative",
+				"loc": "Locative"
+			},
+			"include": ["noun", "participle", "article", "adjective"]
+		},
+		{
+			"name": "degree",
+			"type": "select",
+			"label": "Degree",
+			"options": {
+				"comp": "Comparative",
+				"superl": "Superlative"
+			},
+			"include": ["adj"]
+		}
+	]
+}
