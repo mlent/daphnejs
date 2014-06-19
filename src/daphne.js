@@ -25,17 +25,20 @@ define(['d3'], function(d3) {
 
 	// Plugin Methods + Shared Properties
 	daphne.prototype.defaults = {
-		mode: 'edit',
-		lang: 'grc',
-		source: 'data.json',
-		marginTop: 50,
+		mode: 'edit',						// [str] How you want to interact with the tree. Opts: Edit, Play, Create, Display
+		lang: 'grc',						// [str] Language of sentence being treebanked. Should correspond in daphne.css.
+		data: null,							// [array<json>] Accepts array of JSON objects (the words in the sentence)
+		dataSource: null,					// [str] API Endpoint to give us the data
+		marginTop: 50,						// [number] Tree display - margins
 		marginRight: 0,
 		marginBottom: 50,
 		marginLeft: 0,
-		width: 400,
-		height: 400,
-		initialScale: 0.9,
-		duration: 500
+		width: 400,							// [number] Tree display - width
+		height: 400,						// [number] Tree display - height
+		initialScale: 0.9,					// [number] Tree display - initial zoom level
+		duration: 500,						// [number] Time it takes for a node to mode (in milliseconds)
+		include: null, 						// [array<str>] Fields to include from the data in the editing panel [whitelist]
+		exclude: null						// [array<str>]Fields to exclude from the data in the editing panel [blacklist]
 	};
 
 	/**
@@ -50,8 +53,10 @@ define(['d3'], function(d3) {
 			this.el.addEventListener('populated', this.render.bind(this));
 			this._fetchData();
 		}
-		else
+		else {
 			this.data = this._convertData(this.config.data);
+			this.render();
+		}
 
 		return this;
 	};
@@ -81,7 +86,7 @@ define(['d3'], function(d3) {
 	daphne.prototype._fetchData = function() {
 
 		var request = new XMLHttpRequest();
-		request.open('GET', this.config.source, true);
+		request.open('GET', this.config.dataSource, true);
 
 		request.onload = function() {
 			if (request.status >= 200 && request.status < 400) {
@@ -124,7 +129,7 @@ define(['d3'], function(d3) {
 		var dataMap = words.reduce(function(map, node) {
 			map[node.id] = node;
 			return map;
-		}, {});
+		}, []);
 
 		// Calculate root node, and append it to our datasets 
 		var rid = 0;
@@ -202,13 +207,14 @@ define(['d3'], function(d3) {
 		// Now we start working on the elements themselves
 		this.svg = d3.select(this.el).append('svg')
 			.attr('class', 'svg-container')
-			.style('width', '100%')
+			.style('width', that.config.width + 'px')
+			.style('height', that.config.height + 'px')
 			.style('overflow', 'auto');
 		this.canvas = this.svg.append('g')
 			.attr('class', 'canvas');
 		this.canvas.append('g')
 			.attr('transform', 'translate(' + 
-				(that.config.width) + ', ' + 
+				(that.config.width / 2) + ', ' + 
 				that.config.marginTop + ') scale(' + 
 				that.config.initialScale + 
 			')');

@@ -17,6 +17,21 @@ requirejs.config({
 
 require(['daphne'], function(Daphne) {
 
-	var x = new Daphne('div', { mode: 'play', width: 250, height: 200, initialScale: 0.7 });
+	var words = [
+		{ id: 1, head: 3, relation: "OBJ", value: "ταῦτα" },
+		{ id: 2, head: 3, relation: "AuxY", value: "γὰρ" },
+		{ id: 3, head: 0, relation: "PRED", value: "εἶχον", },
+		{ id: 4, head: 3, relation: "SBJ", value: "Ἀθηναῖοι" },
+		{ id: 5, head: 1, relation: "ATR", value: "Πελοποννησίων" },
+		{ id: 6, head: 0, relation: "AuxK", value: "." }
+	];
+
+	new Daphne('div', { 
+		mode: 'play', 
+		data: words, 
+		width: 500, 
+		height: 400, 
+		initialScale: 0.8 
+	});
 
 });
