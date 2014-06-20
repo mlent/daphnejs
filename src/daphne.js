@@ -98,25 +98,6 @@ define(['d3'], function(d3) {
 		}
 	};
 
-	/**
-	 * Utility method for merging two objects.
-	 */ 
-	daphne.prototype._extend = function(out) {
-		out = out || {};
-
-		for (var i = 1; i < arguments.length; i++) {
-			if (!arguments[i])
-				continue;
-
-			for (var key in arguments[i]) {
-				if (arguments[i].hasOwnProperty(key))
-					out[key] = arguments[i][key];
-			}
-		}
-
-		return out;
-	};
-
 	/** 
 	 * Fetches whatever data we want to use to build the parse tree. 
 	 */
@@ -214,6 +195,9 @@ define(['d3'], function(d3) {
 			
 		var that = this;
 
+		this.el.style.maxHeight = this.config.height + 'px';
+		this.el.style.maxWidth = this.config.width + 'px';
+
 		// Append sentence header 
 		this.el.className = 'daphne';
 		this.header = document.createElement('div');
@@ -261,10 +245,7 @@ define(['d3'], function(d3) {
 
 		// Now we start working on the elements themselves
 		this.svg = d3.select(this.el).append('svg')
-			.attr('class', 'svg-container')
-			.style('width', that.config.width + 'px')
-			.style('height', that.config.height + 'px')
-			.style('overflow', 'auto');
+			.attr('class', 'svg-container');
 		this.canvas = this.svg.append('g')
 			.attr('class', 'canvas');
 		this.canvas.append('g')
@@ -463,6 +444,10 @@ define(['d3'], function(d3) {
 			return;
 		}
 
+		// If the user has the footer open, pass along the data
+		if (this.footer.classList.contains('open'))
+			this._viewNodeProperties(d, i, node);
+
 		this._selectNode(d, node);
 
 		// Otherwise, check to see if it's time to update links
@@ -520,7 +505,7 @@ define(['d3'], function(d3) {
 		if (this.footer.querySelector('form') == null) 
 			this._renderForm();
 
-		// 
+		// Populate the fields on data which correspond to config. Others, blank. 
 		var fields = this.config.config.fields;
 
 		for (var i = 0; i < fields.length; i++) {
@@ -528,10 +513,7 @@ define(['d3'], function(d3) {
 			var value = (d.hasOwnProperty(fields[i].name)) ? d[fields[i].name] : "";
 
 			switch (el.tagName) {
-				case "INPUT":
-					el.value = value;
-					break;
-				case "SELECT":
+				default:
 					el.value = value;
 					break;
 			}
@@ -539,9 +521,16 @@ define(['d3'], function(d3) {
 
 		// Data's in place, so display the form
 		this.footer.className = 'footer open';
+		this.el.querySelector('.form-footer').style.display = 'block';
 		this._showFields();
 	};
-	
+
+	daphne.prototype._hideNodeProperties = function(e) {
+		if (e) e.preventDefault();
+		this.footer.className = 'footer';
+		this.el.querySelector('.form-footer').style.display = 'none';
+	};
+
 	/**
 	 * Grarly function for rendering the form. 
 	 */
@@ -595,17 +584,24 @@ define(['d3'], function(d3) {
 			div.appendChild(el);
 			form.appendChild(div);
 		}
+		var formFooter = document.createElement('div');
+		formFooter.className = 'form-footer';
+
 		var submitBtn = document.createElement('a');
 		submitBtn.href = '#';
-		submitBtn.appendChild(document.createTextNode('Submit'));
+		submitBtn.className = 'save-link';
+		submitBtn.appendChild(document.createTextNode('Save Word'));
 
 		var cancelBtn = document.createElement('a');
 		cancelBtn.href = '#';
+		cancelBtn.className = 'cancel-link';
 		cancelBtn.appendChild(document.createTextNode('Cancel'));
+		cancelBtn.onclick = this._hideNodeProperties.bind(this);
 
-		form.appendChild(submitBtn);
-		form.appendChild(cancelBtn);
+		formFooter.appendChild(cancelBtn);
+		formFooter.appendChild(submitBtn);
 		this.footer.appendChild(form);
+		this.el.appendChild(formFooter);
 	};
 
 	daphne.prototype._showFields = function() {
@@ -797,10 +793,23 @@ define(['d3'], function(d3) {
 	// Utility Functions         //
 	// ------------------------- //
 
+	daphne.prototype._extend = function(out) {
+		out = out || {};
+
+		for (var i = 1; i < arguments.length; i++) {
+			if (!arguments[i])
+				continue;
+
+			for (var key in arguments[i]) {
+				if (arguments[i].hasOwnProperty(key))
+					out[key] = arguments[i][key];
+			}
+		}
+
+		return out;
+	};
+
 	if (!Function.prototype.bind) {
-		/**
-		 * Implement bind() so that PhantomJS can test our code.
-		 */
 		Function.prototype.bind = function (oThis) {
 			if (typeof this !== "function") {
 				throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");

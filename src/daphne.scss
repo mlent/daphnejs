@@ -3,6 +3,7 @@ $main-font: sans-serif;
 $text-color: #333;
 $text-selected-bg-color: #F8D3A7;
 $text-selected-color: #333;
+$link-save-color: #28C2B6;
 
 .daphne {
 	border: 1px solid #EEE;
@@ -11,16 +12,38 @@ $text-selected-color: #333;
 	position: relative;
 	font-family: $main-font;
 	font-size: 12px;
+	width: 100%;
+	height: 100%;
+
+	.svg-container {
+		width: 100%;
+		height: 100%;
+		overflow: auto;
+	}
 
 	a {
 		font-size: 12px;
+		display: inline-block;
+		text-decoration: none;
+		margin: 5px;
+
+		&.save-link {
+			color: #FFF;
+			padding: 10px;
+			background-color: $link-save-color;
+			border-radius: 2px;
+		}
+		&.cancel-link {
+			color: darken($link-save-color, 10%);
+			border-bottom: 3px solid #BEBEBE;
+			margin: 10px;
+			padding: 2px;
+		}
 
 		&.export-link {
-			display: inline-block;
-			text-decoration: none;
 			position: absolute;
-			margin: 5px;
 			right: 0;
+			padding: 10px;
 
 			&.xml {
 				color: #F39F09;
@@ -64,7 +87,7 @@ $text-selected-color: #333;
 		right: 0;
 		bottom: 0;
 		top: 0;
-		background-color: #FDFDFD;
+		background-color: #F5F5F5;
 
 		form {
 			display: none;
@@ -74,9 +97,9 @@ $text-selected-color: #333;
 			height: 100%;
 			box-sizing: border-box;
 			overflow-y: scroll;
-			padding: 10px;
 			border-left: 1px solid #EEE;
 			width: 30%;
+			min-width: 200px;
 			
 			form {
 				display: block;
@@ -85,7 +108,7 @@ $text-selected-color: #333;
 	}
 
 	// On small screens, align to bottom
-	@media all and (max-width: 400px) {
+	@media all and (max-width: 500px) {
 		.footer {
 			border-top: 1px solid #EEE;
 			border-left: 0;
@@ -100,11 +123,16 @@ $text-selected-color: #333;
 		}
 	}
 
-	label, select {
-		margin: 6px;
+	label {
+		margin-bottom: 6px;
 		display: block;
+		font-weight: 600;
+		letter-spacing: .1em;
 	}
+
 	form > div {
+		padding: 15px;
+		border-bottom: 1px solid #DDD;
 		&.hidden {
 			display: none;
 		}
@@ -113,12 +141,22 @@ $text-selected-color: #333;
 		}
 	}
 
+	.form-footer {
+		position: absolute;
+		padding: 5px;
+		bottom: 0;
+		width: 100%;
+		background-color: #EEE;
+		box-sizing: border-box;
+		text-align: right;
+	}
+
 	.sentence {
 		border-bottom: 1px solid #EEE;
 		padding: 12px;
 		font-family: $greek-font;
 		letter-spacing: 1px;
-		font-size: 14px;
+		font-size: 16px;
 		padding-right: 30%;
 
 		span {
