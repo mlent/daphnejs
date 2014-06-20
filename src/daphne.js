@@ -517,60 +517,95 @@ define(['d3'], function(d3) {
 	 * @param {object} node - reference to the d3 selection of the node
 	 */
 	daphne.prototype._viewNodeProperties = function(d, i, node) {
-		this._renderForm();
+		if (this.footer.querySelector('form') == null) 
+			this._renderForm();
 
-			
-	};
-	
-	daphne.prototype._renderForm = function() {
+		// 
+		var fields = this.config.config.fields;
 
-		// If the form element doesn't exist yet, create it
-		if (this.footer.querySelector('form') == null) {
-			var form = document.createElement('form');
-			var fields = this.config.config.fields;
+		for (var i = 0; i < fields.length; i++) {
+			var el = this.footer.querySelector('[name="' + fields[i].name + '"]');
+			var value = (d.hasOwnProperty(fields[i].name)) ? d[fields[i].name] : "";
 
-			// Use their config file to append appropriate fields
-			for (var i = 0; i < fields.length; i++) {
-				var div = document.createElement('div');
-				div.setAttribute('data-name', fields[i].name);
-
-				var label = document.createElement('label');
-				label.innerHTML = fields[i].label;
-				label.setAttribute('for', fields[i].name);
-				div.appendChild(label);
-
-				var el;
-				if (fields[i].type == 'text') {
-					el = document.createElement('input');
-					el.type = 'text';
-				}
-				else 
-					el = document.createElement(fields[i].type);
-
-				el.name = fields[i].name;
-
-				if (fields[i].name == 'pos')
-					el.onchange = this._showFields.bind(this);
-
-				// The dreaded nested for-loop, for appending select options
-				for (var key in fields[i].options) {
-					if (fields[i].options.hasOwnProperty(key)) {
-						var opt = document.createElement('option');
-						opt.innerHTML = fields[i].options[key];
-						opt.value = key;
-						el.appendChild(opt);
-					}
-				}
-
-				div.appendChild(el);
-				form.appendChild(div);
+			switch (el.tagName) {
+				case "INPUT":
+					el.value = value;
+					break;
+				case "SELECT":
+					el.value = value;
+					break;
 			}
-
-			this.footer.appendChild(form);
 		}
 
+		// Data's in place, so display the form
 		this.footer.className = 'footer open';
 		this._showFields();
+	};
+	
+	/**
+	 * Grarly function for rendering the form. 
+	 */
+	daphne.prototype._renderForm = function() {
+
+		var form = document.createElement('form');
+		var fields = this.config.config.fields;
+
+		// Use their config file to append appropriate fields
+		for (var i = 0; i < fields.length; i++) {
+			var div = document.createElement('div');
+			div.setAttribute('data-name', fields[i].name);
+
+			var label = document.createElement('label');
+			label.innerHTML = fields[i].label;
+			label.setAttribute('for', fields[i].name);
+			div.appendChild(label);
+
+			var el;
+			switch (fields[i].type) {
+				case 'text':
+					el = document.createElement('input');
+					el.type = 'text';
+					break;
+				case 'select':
+					el = document.createElement('select'); 
+					var opt = document.createElement('option');
+					opt.innerHTML = 'Select ' + fields[i].label;
+					opt.value = "";
+					el.appendChild(opt);
+					break;
+				default:
+					el = document.createElement(fields[i].type);
+			}
+
+			el.name = fields[i].name;
+
+			if (fields[i].name == 'pos')
+				el.onchange = this._showFields.bind(this);
+
+			// The dreaded nested for-loop, for appending select options
+			for (var key in fields[i].options) {
+				if (fields[i].options.hasOwnProperty(key)) {
+					var opt = document.createElement('option');
+					opt.innerHTML = fields[i].options[key];
+					opt.value = key;
+					el.appendChild(opt);
+				}
+			}
+
+			div.appendChild(el);
+			form.appendChild(div);
+		}
+		var submitBtn = document.createElement('a');
+		submitBtn.href = '#';
+		submitBtn.appendChild(document.createTextNode('Submit'));
+
+		var cancelBtn = document.createElement('a');
+		cancelBtn.href = '#';
+		cancelBtn.appendChild(document.createTextNode('Cancel'));
+
+		form.appendChild(submitBtn);
+		form.appendChild(cancelBtn);
+		this.footer.appendChild(form);
 	};
 
 	daphne.prototype._showFields = function() {
