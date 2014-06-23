@@ -204,12 +204,26 @@ define(['d3'], function(d3) {
 		this.header.className = 'sentence';
 		this.el.appendChild(this.header);
 
-		// And a link to view XML
+		// If in play mode, append points tracker
+		if (this.config.mode == 'play') {
+			this.tracker = document.createElement('div');
+			this.tracker.className = 'tracker';
+			var points = document.createElement('span');
+			points.className = 'points';
+			points.innerHTML = '0';
+			var feedback = document.createElement('span');
+			feedback.className = 'feedback';
+			this.tracker.appendChild(points);
+			this.tracker.appendChild(feedback);
+			this.el.appendChild(this.tracker);
+		}
+
+		/* And a link to view XML
 		this.xmlLink = document.createElement('a');
 		this.xmlLink.href = '#';
 		this.xmlLink.className = 'export-link xml';
 		this.xmlLink.appendChild(document.createTextNode('XML'));
-		this.el.appendChild(this.xmlLink);
+		this.el.appendChild(this.xmlLink);*/
 
 		// And the footer
 		this.footer = document.createElement('div');
@@ -255,12 +269,12 @@ define(['d3'], function(d3) {
 				that.config.initialScale + 
 			')');
 
-		// Bind zoom behavior to zoom function
+		/* Bind zoom behavior to zoom function
 		d3.select(this.el.querySelector('svg'))
 			.call(d3.behavior.zoom()
 				.scaleExtent([0.5, 5])
 				.on("zoom", this._zoom.bind(this)))
-			.on('dblclick.zoom', null);
+			.on('dblclick.zoom', null);*/
 
 		// And alas, the d3 update function
 		this.root = this.data[0];
@@ -283,7 +297,7 @@ define(['d3'], function(d3) {
 			Math.max(Math.min(trans[1], bbound), tbound)
 		];
 
-		this.canvas.attr('transform', 'translate(' + translation + ') scale(' + scale + ')');
+		this.canvas.attr('transform', 'translate(' + translation + ')'); //scale(' + scale + ')');
 	};
 
 	/**
@@ -481,6 +495,7 @@ define(['d3'], function(d3) {
 
 					var match = this._checkMatch(child, parent);
 					childNode.classed({ 'match' : match });
+					console.log(childNode);
 					this._update(childNode);
 
 					if (this._checkCompletion()) {
@@ -743,6 +758,8 @@ define(['d3'], function(d3) {
 			}
 		}
 
+		this._updateScore(child, correct, false);
+
 		console.log("connection was " + (correct ? "correct" : "incorrect"));
 
 		return correct;
@@ -782,11 +799,47 @@ define(['d3'], function(d3) {
 
 		if (complete) {
 			for (var i = 0; i < rootChildren.length; i++) {
+				d3.select(rootChildren[i]).classed({ 'match': true });
 				this._update(updateNodes[i]);
+				this._updateScore(updateNodes[i], true, true);
 			}
 		}
 
 		return complete;
+	};
+
+	daphne.prototype._updateScore = function(d, correct, complete) {
+		
+		this.correct = [];
+		var points = this.tracker.querySelector('.points');
+		var feedback = this.tracker.querySelector('.feedback');
+
+		var successMsgs = ['Super', 'Spot on'];
+		var errorMsgs = ['Not quite', 'Try again'];
+
+		// Earned a point
+		if (correct && this.correct.indexOf(d) === -1) {
+			this.correct.push(d);
+			points.className = 'points bounce';
+			points.innerHTML = parseInt(points.innerHTML) + 1;
+
+			if (complete)
+				feedback.innerHTML = 'Complete!!';
+			else
+				feedback.innerHTML = 'Super!';
+		}
+		// Lost a previously earned point
+		else if (!correct && this.correct.indexOf(d) !== -1) {
+			points.className = 'points bounce';
+			points.innerHTML = parseInt(points.innerHTML) - 1;
+			var i = this.correct.indexOf(d);
+			this.correct.splice(i, 1);
+		}
+		// Answer is wrong altogether
+		else {
+			feedback.innerHTML = 'Try again!';	
+		}
+
 	};
 
 	// ------------------------- //

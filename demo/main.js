@@ -27,7 +27,7 @@ require(['daphne'], function(Daphne) {
 	];
 
 	new Daphne('div', { 
-		mode: 'edit', 
+		mode: 'play', 
 		data: words, 
 		width: 750, 
 		height: 500, 
