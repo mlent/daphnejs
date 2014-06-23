@@ -29,8 +29,8 @@ require(['daphne'], function(Daphne) {
 	new Daphne('div', { 
 		mode: 'play', 
 		data: words, 
-		width: 500, 
-		height: 400, 
+		width: 750, 
+		height: 500, 
 		initialScale: 0.8,
 		config: '../src/conf.json'
 	});

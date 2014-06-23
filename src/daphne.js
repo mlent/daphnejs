@@ -92,28 +92,10 @@ define(['d3'], function(d3) {
 		else if (typeof config  === 'undefined') {
 			this.config.config = { "fields": [ 
 				{ "name": "value", "type": "text", "label": "Value" },
+				{ "name": "pos", "type": "text", "label": "Part of Speech"},
 				{ "name": "relation", "type": "text", "label": "Relation" }]
 			};
 		}
-	};
-
-	/**
-	 * Utility method for merging two objects.
-	 */ 
-	daphne.prototype._extend = function(out) {
-		out = out || {};
-
-		for (var i = 1; i < arguments.length; i++) {
-			if (!arguments[i])
-				continue;
-
-			for (var key in arguments[i]) {
-				if (arguments[i].hasOwnProperty(key))
-					out[key] = arguments[i][key];
-			}
-		}
-
-		return out;
 	};
 
 	/** 
@@ -213,18 +195,35 @@ define(['d3'], function(d3) {
 			
 		var that = this;
 
+		this.el.style.maxHeight = this.config.height + 'px';
+		this.el.style.maxWidth = this.config.width + 'px';
+
 		// Append sentence header 
 		this.el.className = 'daphne';
 		this.header = document.createElement('div');
 		this.header.className = 'sentence';
 		this.el.appendChild(this.header);
 
-		// And a link to view XML
+		// If in play mode, append points tracker
+		if (this.config.mode == 'play') {
+			this.tracker = document.createElement('div');
+			this.tracker.className = 'tracker';
+			var points = document.createElement('span');
+			points.className = 'points';
+			points.innerHTML = '0';
+			var feedback = document.createElement('span');
+			feedback.className = 'feedback';
+			this.tracker.appendChild(points);
+			this.tracker.appendChild(feedback);
+			this.el.appendChild(this.tracker);
+		}
+
+		/* And a link to view XML
 		this.xmlLink = document.createElement('a');
 		this.xmlLink.href = '#';
 		this.xmlLink.className = 'export-link xml';
 		this.xmlLink.appendChild(document.createTextNode('XML'));
-		this.el.appendChild(this.xmlLink);
+		this.el.appendChild(this.xmlLink);*/
 
 		// And the footer
 		this.footer = document.createElement('div');
@@ -260,10 +259,7 @@ define(['d3'], function(d3) {
 
 		// Now we start working on the elements themselves
 		this.svg = d3.select(this.el).append('svg')
-			.attr('class', 'svg-container')
-			.style('width', that.config.width + 'px')
-			.style('height', that.config.height + 'px')
-			.style('overflow', 'auto');
+			.attr('class', 'svg-container');
 		this.canvas = this.svg.append('g')
 			.attr('class', 'canvas');
 		this.canvas.append('g')
@@ -273,12 +269,12 @@ define(['d3'], function(d3) {
 				that.config.initialScale + 
 			')');
 
-		// Bind zoom behavior to zoom function
+		/* Bind zoom behavior to zoom function
 		d3.select(this.el.querySelector('svg'))
 			.call(d3.behavior.zoom()
 				.scaleExtent([0.5, 5])
 				.on("zoom", this._zoom.bind(this)))
-			.on('dblclick.zoom', null);
+			.on('dblclick.zoom', null);*/
 
 		// And alas, the d3 update function
 		this.root = this.data[0];
@@ -301,7 +297,7 @@ define(['d3'], function(d3) {
 			Math.max(Math.min(trans[1], bbound), tbound)
 		];
 
-		this.canvas.attr('transform', 'translate(' + translation + ') scale(' + scale + ')');
+		this.canvas.attr('transform', 'translate(' + translation + ')'); //scale(' + scale + ')');
 	};
 
 	/**
@@ -341,10 +337,7 @@ define(['d3'], function(d3) {
 				that._clickNode(d, i, d3.select(this));
 			})
 			.on('dblclick', function(d, i) {
-				if (that.config.mode === 'display')
-					return false;
-				else
-					that._editNode(d, i, d3.select(this));
+				that._viewNodeProperties(d, i, d3.select(this));
 			})
 			.style('stroke', function(d) {
 				return that.color(d.pos);
@@ -465,6 +458,10 @@ define(['d3'], function(d3) {
 			return;
 		}
 
+		// If the user has the footer open, pass along the data
+		if (this.footer.classList.contains('open'))
+			this._viewNodeProperties(d, i, node);
+
 		this._selectNode(d, node);
 
 		// Otherwise, check to see if it's time to update links
@@ -498,6 +495,7 @@ define(['d3'], function(d3) {
 
 					var match = this._checkMatch(child, parent);
 					childNode.classed({ 'match' : match });
+					console.log(childNode);
 					this._update(childNode);
 
 					if (this._checkCompletion()) {
@@ -518,7 +516,141 @@ define(['d3'], function(d3) {
 	 * @param {number} i - clicked node's index
 	 * @param {object} node - reference to the d3 selection of the node
 	 */
-	daphne.prototype._editNode = function(d, i, node) {
+	daphne.prototype._viewNodeProperties = function(d, i, node) {
+		if (this.footer.querySelector('form') == null) 
+			this._renderForm();
+
+		// Populate the fields on data which correspond to config. Others, blank. 
+		var fields = this.config.config.fields;
+
+		for (var i = 0; i < fields.length; i++) {
+			var el = this.footer.querySelector('[name="' + fields[i].name + '"]');
+			var value = (d.hasOwnProperty(fields[i].name)) ? d[fields[i].name] : "";
+
+			switch (el.tagName) {
+				default:
+					el.value = value;
+					break;
+			}
+		}
+
+		// Data's in place, so display the form
+		this.footer.className = 'footer open';
+		this.el.querySelector('.form-footer').style.display = 'block';
+		this._showFields();
+	};
+
+	daphne.prototype._hideNodeProperties = function(e) {
+		if (e) e.preventDefault();
+		this.footer.className = 'footer';
+		this.el.querySelector('.form-footer').style.display = 'none';
+	};
+
+	/**
+	 * Grarly function for rendering the form. 
+	 */
+	daphne.prototype._renderForm = function() {
+
+		var form = document.createElement('form');
+		var fields = this.config.config.fields;
+
+		// Use their config file to append appropriate fields
+		for (var i = 0; i < fields.length; i++) {
+			var div = document.createElement('div');
+			div.setAttribute('data-name', fields[i].name);
+
+			var label = document.createElement('label');
+			label.innerHTML = fields[i].label;
+			label.setAttribute('for', fields[i].name);
+			div.appendChild(label);
+
+			var el;
+			switch (fields[i].type) {
+				case 'text':
+					el = document.createElement('input');
+					el.type = 'text';
+					break;
+				case 'select':
+					el = document.createElement('select'); 
+					var opt = document.createElement('option');
+					opt.innerHTML = 'Select ' + fields[i].label;
+					opt.value = "";
+					el.appendChild(opt);
+					break;
+				default:
+					el = document.createElement(fields[i].type);
+			}
+
+			el.name = fields[i].name;
+
+			if (fields[i].name == 'pos')
+				el.onchange = this._showFields.bind(this);
+
+			// The dreaded nested for-loop, for appending select options
+			for (var key in fields[i].options) {
+				if (fields[i].options.hasOwnProperty(key)) {
+					var opt = document.createElement('option');
+					opt.innerHTML = fields[i].options[key];
+					opt.value = key;
+					el.appendChild(opt);
+				}
+			}
+
+			div.appendChild(el);
+			form.appendChild(div);
+		}
+		var formFooter = document.createElement('div');
+		formFooter.className = 'form-footer';
+
+		var submitBtn = document.createElement('a');
+		submitBtn.href = '#';
+		submitBtn.className = 'save-link';
+		submitBtn.appendChild(document.createTextNode('Save Word'));
+
+		var cancelBtn = document.createElement('a');
+		cancelBtn.href = '#';
+		cancelBtn.className = 'cancel-link';
+		cancelBtn.appendChild(document.createTextNode('Cancel'));
+		cancelBtn.onclick = this._hideNodeProperties.bind(this);
+
+		formFooter.appendChild(cancelBtn);
+		formFooter.appendChild(submitBtn);
+		this.footer.appendChild(form);
+		this.el.appendChild(formFooter);
+	};
+
+	daphne.prototype._showFields = function() {
+		var form = this.footer.querySelector('form'),
+			el = form.querySelector('select[name="pos"]'),
+			pos = el.options[el.selectedIndex].value,
+			els = form.querySelectorAll('[data-name]');
+
+		// Create quick lookup object to retrieve fields by name attr
+		var lookup = {}, fields = this.config.config.fields;
+		for (var i = 0, len = fields.length; i < len; i++)
+			lookup[fields[i].name] = fields[i];
+
+		// Display only the fields appropriate based on conf file
+		for (var i = 0; i < els.length; i++) {
+			var name = els[i].getAttribute('data-name');
+			if (lookup[name].exclude && lookup[name].exclude.indexOf(pos) !== -1) {
+				els[i].className = 'hidden';
+				continue;
+			}
+			if (lookup[name].include && lookup[name].include.indexOf(pos) !== -1) {
+				els[i].className = 'shown';
+				continue;
+			}
+			if (lookup[name].include && lookup[name].include.indexOf(pos) === -1) {
+				els[i].className = 'hidden';
+				continue;
+			}
+			
+			els[i].className = 'shown';
+		}
+	};
+
+	daphne.prototype._editNode = function() {
 
 	};
 
@@ -626,6 +758,8 @@ define(['d3'], function(d3) {
 			}
 		}
 
+		this._updateScore(child, correct, false);
+
 		console.log("connection was " + (correct ? "correct" : "incorrect"));
 
 		return correct;
@@ -665,21 +799,70 @@ define(['d3'], function(d3) {
 
 		if (complete) {
 			for (var i = 0; i < rootChildren.length; i++) {
+				d3.select(rootChildren[i]).classed({ 'match': true });
 				this._update(updateNodes[i]);
+				this._updateScore(updateNodes[i], true, true);
 			}
 		}
 
 		return complete;
 	};
 
+	daphne.prototype._updateScore = function(d, correct, complete) {
+		
+		this.correct = [];
+		var points = this.tracker.querySelector('.points');
+		var feedback = this.tracker.querySelector('.feedback');
+
+		var successMsgs = ['Super', 'Spot on'];
+		var errorMsgs = ['Not quite', 'Try again'];
+
+		// Earned a point
+		if (correct && this.correct.indexOf(d) === -1) {
+			this.correct.push(d);
+			points.className = 'points bounce';
+			points.innerHTML = parseInt(points.innerHTML) + 1;
+
+			if (complete)
+				feedback.innerHTML = 'Complete!!';
+			else
+				feedback.innerHTML = 'Super!';
+		}
+		// Lost a previously earned point
+		else if (!correct && this.correct.indexOf(d) !== -1) {
+			points.className = 'points bounce';
+			points.innerHTML = parseInt(points.innerHTML) - 1;
+			var i = this.correct.indexOf(d);
+			this.correct.splice(i, 1);
+		}
+		// Answer is wrong altogether
+		else {
+			feedback.innerHTML = 'Try again!';	
+		}
+
+	};
+
 	// ------------------------- //
 	// Utility Functions         //
 	// ------------------------- //
 
+	daphne.prototype._extend = function(out) {
+		out = out || {};
+
+		for (var i = 1; i < arguments.length; i++) {
+			if (!arguments[i])
+				continue;
+
+			for (var key in arguments[i]) {
+				if (arguments[i].hasOwnProperty(key))
+					out[key] = arguments[i][key];
+			}
+		}
+
+		return out;
+	};
+
 	if (!Function.prototype.bind) {
-		/**
-		 * Implement bind() so that PhantomJS can test our code.
-		 */
 		Function.prototype.bind = function (oThis) {
 			if (typeof this !== "function") {
 				throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
