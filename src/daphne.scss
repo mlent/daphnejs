@@ -5,6 +5,7 @@ $text-selected-bg-color: #F8D3A7;
 $text-selected-color: #333;
 $link-save-color: #28C2B6;
 $points-color: #28C2B6; 
+$points-error-color: #AF2D04;
 
 .daphne {
 	border: 1px solid #EEE;
@@ -244,8 +245,7 @@ $points-color: #28C2B6;
 		}
 	}
 	.bounce {
-		position: absolute;
-		-webkit-animation: bounce .7s infinite;
+		-webkit-animation: bounce .7s;
 		-moz-animation: bounce .7s;
 		-o-animation: bounce .7s;
 		animation: bounce .7s;
@@ -253,18 +253,82 @@ $points-color: #28C2B6;
 	.tracker {
 		color: #FFF;
 		position: absolute;
+		width: 100%;
 	}
 	.points {
-		background-color: #04AFAF;
+		background-color: $points-color;
+		position: absolute;
 		padding: 5px 10px;
-		float: left;
+		display: inline-block;
+		top: 0px;
+		margin: 5px;
+		-webkit-transition: background-color .5s ease-out;
+		-moz-transition: background-color .5s ease-out;
+		-o-transition: background-color .5s ease-out;
+		transition: background-color .5s ease-out;
+
+		&.error {
+			background-color: $points-error-color;
+			-webkit-transition: background-color .5s ease-in;
+			-moz-transition: background-color .5s ease-in;
+			-o-transition: background-color .5s ease-in;
+			transition: background-color .5s ease-in;
+		}
+		&.success {
+			background-color: lighten($points-color, 10%);
+			-webkit-transition: background-color .5s ease-in;
+			-moz-transition: background-color .5s ease-in;
+			-o-transition: background-color .5s ease-in;
+			transition: background-color .5s ease-in;
+		}
 	}
 	.feedback {
-		float: left;
-		display: inline-block;
-		background-color: #636363;
-		padding: 5px 13px;
+		position: absolute;
+		left: 40px;
 		margin: 5px;
-		border-radius: 2px;
+		padding: 5px;
+		background: #333;
+		border-radius: 3px;
+		width: auto;
+		display: inline-block;
+		-webkit-transition: background-color .5s ease-out;
+		-moz-transition: background-color .5s ease-out;
+		-o-transition: background-color .5s ease-out;
+		transition: background-color .5s ease-out;
+
+		&:after {
+			content: '';
+			position: absolute;
+			border-style: solid;
+			border-width: 5px 5px 5px 0;
+			border-color: transparent #333;
+			display: block;
+			width: 0;
+			z-index: 1;
+			margin-top: -5px;
+			left: -5px;
+			top: 50%;
+			-webkit-transition: border-color 5s ease-out;
+			-moz-transition: border-color .5s ease-out;
+			-o-transition: border-color .5s ease-out;
+			transition: border-color .5s ease-out;
+		}
+
+		&.hidden {
+			color: transparent;
+			background-color: transparent;
+			-webkit-transition: background-color .5s ease-out;
+			-moz-transition: background-color .5s ease-out;
+			-o-transition: background-color .5s ease-out;
+			transition: background-color .5s ease-out;
+
+			&:after {
+				border-color: transparent transparent;
+				-webkit-transition: border-color 5s ease-out;
+				-moz-transition: border-color .5s ease-out;
+				-o-transition: border-color .5s ease-out;
+				transition: border-color .5s ease-out;
+			}
+		}
 	}
 }

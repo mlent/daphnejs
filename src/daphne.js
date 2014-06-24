@@ -207,15 +207,18 @@ define(['d3'], function(d3) {
 		// If in play mode, append points tracker
 		if (this.config.mode == 'play') {
 			this.tracker = document.createElement('div');
-			this.tracker.className = 'tracker';
+			this.tracker.className = 'tracker bounce';
 			var points = document.createElement('span');
 			points.className = 'points';
 			points.innerHTML = '0';
 			var feedback = document.createElement('span');
 			feedback.className = 'feedback';
+			feedback.innerHTML = 'Make your move!';
 			this.tracker.appendChild(points);
 			this.tracker.appendChild(feedback);
 			this.el.appendChild(this.tracker);
+
+			this._delayRemoveClass(feedback, 'hidden', 3000);
 		}
 
 		/* And a link to view XML
@@ -810,7 +813,9 @@ define(['d3'], function(d3) {
 
 	daphne.prototype._updateScore = function(d, correct, complete) {
 		
-		this.correct = [];
+		if (this.correct === undefined)
+			this.correct = [];
+
 		var points = this.tracker.querySelector('.points');
 		var feedback = this.tracker.querySelector('.feedback');
 
@@ -820,25 +825,36 @@ define(['d3'], function(d3) {
 		// Earned a point
 		if (correct && this.correct.indexOf(d) === -1) {
 			this.correct.push(d);
-			points.className = 'points bounce';
 			points.innerHTML = parseInt(points.innerHTML) + 1;
 
 			if (complete)
 				feedback.innerHTML = 'Complete!!';
 			else
 				feedback.innerHTML = 'Super!';
+
+			this._delayAddClass(points, 'success bounce', 0);
+			this._delayRemoveClass(points, 'success bounce', 3000);
+
 		}
 		// Lost a previously earned point
 		else if (!correct && this.correct.indexOf(d) !== -1) {
-			points.className = 'points bounce';
 			points.innerHTML = parseInt(points.innerHTML) - 1;
 			var i = this.correct.indexOf(d);
 			this.correct.splice(i, 1);
+
+			feedback.innerHTML = 'You might want to put that back.';	
+			this._delayAddClass(points, 'error bounce', 0);
+			this._delayRemoveClass(points, 'error bounce', 3000);
 		}
 		// Answer is wrong altogether
 		else {
 			feedback.innerHTML = 'Try again!';	
+			this._delayAddClass(points, 'error bounce', 0);
+			this._delayRemoveClass(points, 'error bounce', 3000);
 		}
+
+		this._delayRemoveClass(feedback, 'hidden', 0);
+		this._delayAddClass(feedback, 'hidden', 3000);
 
 	};
 
@@ -861,6 +877,41 @@ define(['d3'], function(d3) {
 
 		return out;
 	};
+
+	daphne.prototype._delayAddClass = function(el, className, waitTime) {
+		setTimeout(function() {
+			console.log("Adding className:", className);
+			if (el.className.indexOf(className) === -1)
+				el.className += ' ' + className;
+
+			console.log("new classes:", el.className);
+		}, waitTime);
+	};
+	daphne.prototype._delayRemoveClass = function(el, className, waitTime) {
+		setTimeout(function() {
+			console.log("remove class: ", className); 
+			if (className.indexOf(" ") === -1)
+				el.removeClass(className); 
+			else {
+				var classes = className.split(" ");
+				for (var i = 0; i < classes.length; i++) 
+					el.removeClass(classes[i]);
+			}
+			console.log("remaining classes: ", el.className);
+		}, waitTime);
+	};
+
+	if (!HTMLElement.prototype.removeClass) {
+		HTMLElement.prototype.removeClass = function(remove) {
+			var newList = '';
+			var classes = this.className.split(" ");
+			for (var i = 0; i < classes.length; i++) {
+				if (classes[i] !== remove)
+					newList += classes[i] + " ";
+			}
+			this.className = newList.trim();
+		};
+	}
 
 	if (!Function.prototype.bind) {
 		Function.prototype.bind = function (oThis) {
