@@ -4,8 +4,13 @@ define(['d3'], function(d3) {
 
 	function daphne(selector, options) {
 
+
 		/*jshint validthis:true */
-		this.el = document.querySelector(selector);
+		if (typeof(selector) === 'string')
+			this.el = document.querySelector(selector);
+		else
+			this.el = selector;
+
 		this.options = options || {};
 
 		if (this.el === null) {
