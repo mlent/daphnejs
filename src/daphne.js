@@ -160,7 +160,7 @@ define(['d3'], function(d3) {
 			var node = words[i];
 			if (dataMap[node.head] === undefined) {
 				rid = node.head;
-				var rootNode = { 'id': rid, 'value': 'root', 'pos': 'root' };
+				var rootNode = { 'id': rid, 'value': 'root', 'pos': 'root', 'relation': '' };
 
 				words.push(rootNode);
 				dataMap[rid] = rootNode;
