@@ -7,6 +7,13 @@ $link-save-color: #28C2B6;
 $points-color: #28C2B6; 
 $points-error-color: #AF2D04;
 
+@mixin animate($name, $duration, $timing-function, $delay, $iteration-count) {
+	-webkit-animation: $name $duration $timing-function $delay $iteration-count;
+	-moz-animation: $name $duration $timing-function $delay $iteration-count;
+	-o-animation: $name $duration $timing-function $delay $iteration-count;
+	animation: $name $duration $timing-function $delay $iteration-count;
+}
+
 .daphne {
 	border: 1px solid #EEE;
 	background-color: #FFF;
@@ -245,10 +252,7 @@ $points-error-color: #AF2D04;
 		}
 	}
 	.bounce {
-		-webkit-animation: bounce .7s;
-		-moz-animation: bounce .7s;
-		-o-animation: bounce .7s;
-		animation: bounce .7s;
+	    @include animate(bounce, 1s, ease, 0, 1);
 	}
 	.tracker {
 		color: #FFF;

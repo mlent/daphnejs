@@ -212,9 +212,9 @@ define(['d3'], function(d3) {
 		// If in play mode, append points tracker
 		if (this.config.mode == 'play') {
 			this.tracker = document.createElement('div');
-			this.tracker.className = 'tracker bounce';
+			this.tracker.className = 'tracker';
 			var points = document.createElement('span');
-			points.className = 'points';
+			points.className = 'points bounce';
 			points.innerHTML = '0';
 			var feedback = document.createElement('span');
 			feedback.className = 'feedback';
