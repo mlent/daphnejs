@@ -214,7 +214,7 @@ define(['d3'], function(d3) {
 			this.tracker = document.createElement('div');
 			this.tracker.className = 'tracker';
 			var points = document.createElement('span');
-			points.className = 'points bounce';
+			points.className = 'points wiggle';
 			points.innerHTML = '0';
 			var feedback = document.createElement('span');
 			feedback.className = 'feedback';
@@ -223,7 +223,8 @@ define(['d3'], function(d3) {
 			this.tracker.appendChild(feedback);
 			this.el.appendChild(this.tracker);
 
-			this._delayRemoveClass(feedback, 'hidden', 3000);
+			this._delayAddClass(feedback, 'hidden', 3000);
+			this._delayRemoveClass(points, 'wiggle', 3000);
 		}
 
 		/* And a link to view XML
@@ -848,14 +849,14 @@ define(['d3'], function(d3) {
 			this.correct.splice(i, 1);
 
 			feedback.innerHTML = 'You might want to put that back.';	
-			this._delayAddClass(points, 'error bounce', 0);
-			this._delayRemoveClass(points, 'error bounce', 3000);
+			this._delayAddClass(points, 'error wiggle', 0);
+			this._delayRemoveClass(points, 'error wiggle', 3000);
 		}
 		// Answer is wrong altogether
 		else {
 			feedback.innerHTML = 'Try again!';	
-			this._delayAddClass(points, 'error bounce', 0);
-			this._delayRemoveClass(points, 'error bounce', 3000);
+			this._delayAddClass(points, 'error wiggle', 0);
+			this._delayRemoveClass(points, 'error wiggle', 3000);
 		}
 
 		this._delayRemoveClass(feedback, 'hidden', 0);
