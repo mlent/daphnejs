@@ -204,7 +204,7 @@ define(['d3'], function(d3) {
 		this.el.style.maxWidth = this.config.width + 'px';
 
 		// Append sentence header 
-		this.el.className = 'daphne';
+		this.el.className = this.el.className + ' daphne';
 		this.header = document.createElement('div');
 		this.header.className = 'sentence';
 		this.el.appendChild(this.header);
