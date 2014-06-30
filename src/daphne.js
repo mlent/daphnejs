@@ -200,11 +200,17 @@ define(['d3'], function(d3) {
 			
 		var that = this;
 
+		// TODO: Default to making this responsive and based on tree dimensions
 		this.el.style.maxHeight = this.config.height + 'px';
 		this.el.style.maxWidth = this.config.width + 'px';
 
+		// Add daphne class if needed, regardless clean out inner html
+		if (this.el.className.indexOf('daphne') === -1) {
+			this.el.className += ' daphne';
+		}
+		this.el.innerHTML = '';
+
 		// Append sentence header 
-		this.el.className = this.el.className + ' daphne';
 		this.header = document.createElement('div');
 		this.header.className = 'sentence';
 		this.el.appendChild(this.header);
