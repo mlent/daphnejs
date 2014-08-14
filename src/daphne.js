@@ -14,7 +14,6 @@ define(['d3'], function(d3) {
 		this.options = options || {};
 
 		if (this.el === null) {
-			console.log("Could not find DOM object");
 			return this;
 		}
 
@@ -27,13 +26,13 @@ define(['d3'], function(d3) {
 		mode: 'edit',						// [str] How you want to interact with the tree. Opts: Edit, Play, Create, Display
 		lang: 'grc',						// [str] Language of sentence being treebanked. Should correspond in daphne.css.
 		data: null,							// [array<json>] Accepts array of JSON objects (the words in the sentence)
-		marginTop: 50,						// [number] Tree display - margins
+		marginTop: 30,						// [number] Tree display - margins
 		marginRight: 0,
 		marginBottom: 50,
 		marginLeft: 0,
 		width: 400,							// [number] Tree display - width
 		height: 400,						// [number] Tree display - height
-		initialScale: 0.9,					// [number] Tree display - initial zoom level
+		initialScale: 1,					// [number] Tree display - initial zoom level
 		duration: 500,						// [number] Time it takes for a node to mode (in milliseconds)
 		include: null, 						// [array<str>] Fields to include from the data in the editing panel [whitelist]
 		exclude: null,						// [array<str>]Fields to exclude from the data in the editing panel [blacklist]
@@ -200,9 +199,6 @@ define(['d3'], function(d3) {
 			
 		var that = this;
 
-		// TODO: Default to making this responsive and based on tree dimensions
-		this.el.style.maxHeight = this.config.height + 'px';
-		this.el.style.maxWidth = this.config.width + 'px';
 
 		// Add daphne class if needed, regardless clean out inner html
 		if (this.el.className.indexOf('daphne') === -1) {
@@ -233,13 +229,6 @@ define(['d3'], function(d3) {
 			this._delayRemoveClass(points, 'wiggle', 3000);
 		}
 
-		/* And a link to view XML
-		this.xmlLink = document.createElement('a');
-		this.xmlLink.href = '#';
-		this.xmlLink.className = 'export-link xml';
-		this.xmlLink.appendChild(document.createTextNode('XML'));
-		this.el.appendChild(this.xmlLink);*/
-
 		// And the footer
 		this.footer = document.createElement('div');
 		this.footer.className = 'footer';
@@ -261,7 +250,7 @@ define(['d3'], function(d3) {
 			var w1 = (a.value.length > a.relation.length) ? a.value.length : a.relation.length;
 			var w2 = (b.value.length > b.relation.length) ? b.value.length : b.relation.length;
 
-			var  scale = 0.13;
+			var  scale = 0.1;
 
 			return Math.ceil((w1 * scale) + (w2 * scale) / 2);
 		});
@@ -277,12 +266,8 @@ define(['d3'], function(d3) {
 			.attr('class', 'svg-container');
 		this.canvas = this.svg.append('g')
 			.attr('class', 'canvas');
-		this.canvas.append('g')
-			.attr('transform', 'translate(' + 
-				(that.config.width / 2) + ', ' + 
-				that.config.marginTop + ') scale(' + 
-				that.config.initialScale + 
-			')');
+		this.canvas.append('g');
+		this.canvas.attr('transform', 'translate(' + this.config.width / 2 + ', ' + this.config.marginTop  +')'); 
 
 		/* Bind zoom behavior to zoom function
 		d3.select(this.el.querySelector('svg'))
@@ -291,9 +276,19 @@ define(['d3'], function(d3) {
 				.on("zoom", this._zoom.bind(this)))
 			.on('dblclick.zoom', null);*/
 
+		this._addEvent(window, "resize", this._respond.bind(this));
+		//setInterval(this._respond.bind(this), 3000);
+
 		// And alas, the d3 update function
 		this.root = this.data[0];
 		this._update(this.root);
+	};
+
+	daphne.prototype._respond = function(e) {
+		var that = this;
+		var width = this.el.offsetWidth - 70;
+		this.el.querySelector('svg').style.width = width + 'px';
+		this.canvas.attr('transform', 'translate(' + width / 2 + ', ' + this.config.marginTop  +')'); 
 	};
 
 	/**
@@ -331,9 +326,15 @@ define(['d3'], function(d3) {
 		var nodes = this.tree(this.root).reverse(),
 			links = this.tree.links(nodes);
 
+		// Adjust height in tree and in surrounding DOM elements
+		var depth = 0;
 		nodes.forEach(function(d) {
+			depth = (d.depth > depth) ? d.depth : depth;
 			d.y = d.depth * 100;
 		});
+		var height = (depth * 100) + 200 + 'px';
+		this.el.style.maxHeight = height;
+		this.el.querySelector('svg').style.height = height;
 
 		var node = this.svg.select('.canvas g').selectAll('g.node')
 			.data(nodes, function(d, i) {
@@ -510,7 +511,6 @@ define(['d3'], function(d3) {
 
 					var match = this._checkMatch(child, parent);
 					childNode.classed({ 'match' : match });
-					console.log(childNode);
 					this._update(childNode);
 
 					if (this._checkCompletion()) {
@@ -694,6 +694,22 @@ define(['d3'], function(d3) {
 	};
 
 	/**
+	 * Get current max depth of tree to calculate height
+	 */ 
+	daphne.prototype._getMaxDepth = function(child, depth) {
+
+		var children = child.children;
+		if (children) {
+			for (var i = 0, len = children.length; i < len; i++) {
+				if (depth > children[i].depth)
+					return depth;
+				else
+					return this._getMaxDepth(children[i], depth);
+			}
+		}
+	};
+
+	/**
 	 * In the parse tree, an ancestor cannot become the child of one of its descendants. 
 	 * @param {object} child - the node that will move, so long as it's not an ancestor of its new parent.
 	 * @param {object} parentId - the ID of the node that we want to ensure is not actually a descendant.
@@ -774,8 +790,6 @@ define(['d3'], function(d3) {
 		}
 
 		this._updateScore(child, correct, false);
-
-		console.log("connection was " + (correct ? "correct" : "incorrect"));
 
 		return correct;
 	};
@@ -892,16 +906,13 @@ define(['d3'], function(d3) {
 
 	daphne.prototype._delayAddClass = function(el, className, waitTime) {
 		setTimeout(function() {
-			console.log("Adding className:", className);
 			if (el.className.indexOf(className) === -1)
 				el.className += ' ' + className;
 
-			console.log("new classes:", el.className);
 		}, waitTime);
 	};
 	daphne.prototype._delayRemoveClass = function(el, className, waitTime) {
 		setTimeout(function() {
-			console.log("remove class: ", className); 
 			if (className.indexOf(" ") === -1)
 				el.removeClass(className); 
 			else {
@@ -909,8 +920,19 @@ define(['d3'], function(d3) {
 				for (var i = 0; i < classes.length; i++) 
 					el.removeClass(classes[i]);
 			}
-			console.log("remaining classes: ", el.className);
 		}, waitTime);
+	};
+
+	daphne.prototype._addEvent = function(el, type, handler) {
+		if (el === null || typeof(el) === 'undefined') 
+			return;
+
+		if (el.addEventListener)
+			el.addEventListener(type, handler, false);
+		else if (el.attachEvent)
+			el.attachEvent('on' + type, handler);
+		else
+			el['on' + type] = handler;
 	};
 
 	if (!HTMLElement.prototype.removeClass) {
