@@ -250,9 +250,9 @@ define(['d3'], function(d3) {
 			var w1 = (a.value.length > a.relation.length) ? a.value.length : a.relation.length;
 			var w2 = (b.value.length > b.relation.length) ? b.value.length : b.relation.length;
 
-			var  scale = 0.02;
+			var  scale = 0.1;
 
-			return Math.ceil((w1 * scale) + (w2 * scale) / 2);
+			return ((w1 * scale) + (w2 * scale) / 2);
 		});
 
 
@@ -535,13 +535,15 @@ define(['d3'], function(d3) {
 		// If Custom event is available, we want this to trasmit data via event about what user has just done 
 		if (window.CustomEvent) {
 			// Eliminate d3's circular data structure
-			child.parent = child.parent.id;
+			var kid = _.clone(child);
+			kid.parent = child.parent.id;
+			kid.children = _.pluck(child.children, "id");
+
 			var detail = {
 				"detail": {
 					"accuracy": (match ? 100 : 0),
 					"task": "build_parse_tree",
-					"response": child,
-					"children": _.pluck(child.children, "id")
+					"response": kid
 				}
 			};
 			if (child.CTS) {
