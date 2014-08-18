@@ -69,11 +69,12 @@ define(['d3'], function(d3) {
 		if (typeof config === 'string') {
 
 			var request = new XMLHttpRequest();
+			request.responseType = 'json';
 			request.open('GET', config, false);
 
 			request.onload = function() {
 				if (request.status >= 200 && request.status < 400) {
-					this.config.config = JSON.parse(request.responseText);
+					this.config.config = request.response;
 				}
 				else {
 					console.log("Reached server but server error occured while trying to fetch data");
@@ -107,11 +108,12 @@ define(['d3'], function(d3) {
 	daphne.prototype._fetchData = function() {
 
 		var request = new XMLHttpRequest();
+		request.responseType = 'json';
 		request.open('GET', this.config.dataSource, true);
 
 		request.onload = function() {
 			if (request.status >= 200 && request.status < 400) {
-				this.data = this._convertData(JSON.parse(request.responseText).words);
+				this.data = this._convertData(request.response.words);
 
 				// Tell our app that data has populated
 				var ev;
