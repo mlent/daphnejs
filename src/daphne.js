@@ -4,7 +4,6 @@ define(['d3'], function(d3) {
 
 	function daphne(selector, options) {
 
-
 		/*jshint validthis:true */
 		if (typeof(selector) === 'string')
 			this.el = document.querySelector(selector);
@@ -513,8 +512,12 @@ define(['d3'], function(d3) {
 					childNode.classed({ 'match' : match });
 					this._update(childNode);
 
+					// Send an event attached to this.el, so we know a node is moved.
+					this._sendSubmission(child, match);
+
 					if (this._checkCompletion()) {
-						console.log("complete!");
+						// Send an event, so we know user has completed the tree.
+						this._sendSubmission(child, match, true);
 					}
 				}
 
@@ -522,7 +525,33 @@ define(['d3'], function(d3) {
 
 			this._deselectAllNodes();
 		}
-		
+	};
+
+	daphne.prototype._sendSubmission = function(child, match, isComplete) {
+		var eventType = isComplete ? 'completed' : 'submitted';
+		var e;
+
+		// If Custom event is available, we want this to trasmit data via event about what user has just done 
+		if (window.CustomEvent) {
+			// Eliminate d3's circular data structure
+			child.parent = child.parent.id;
+			var detail = {
+				"detail": {
+					"accuracy": (match ? 100 : 0),
+					"task": "build_parse_tree",
+					"response": child,
+					"children": _.pluck(child.children, "id")
+				}
+			};
+			if (child.CTS) {
+				detail.detail.encounteredWords = [child.CTS];
+			}
+			e = new CustomEvent(eventType, detail);
+		}
+		else {
+			e = document.createEvent(eventType);	
+		}
+		this.el.dispatchEvent(e);
 	};
 
 	/**
@@ -967,6 +996,19 @@ define(['d3'], function(d3) {
 			return FBound;
 		};
 	}
+
+	(function () {
+		function CustomEvent ( event, params ) {
+			params = params || { bubbles: false, cancelable: false, detail: undefined };
+			var evt = document.createEvent( 'CustomEvent' );
+			evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+			return evt;
+		};
+
+		CustomEvent.prototype = window.Event.prototype;
+
+		window.CustomEvent = CustomEvent;
+	})();
 
 	return daphne;
 
