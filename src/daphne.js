@@ -31,7 +31,7 @@ define(['d3'], function(d3) {
 		marginLeft: 0,
 		width: 400,							// [number] Tree display - width
 		height: 400,						// [number] Tree display - height
-		initialScale: 1,					// [number] Tree display - initial zoom level
+		initialScale: 0.9,					// [number] Tree display - initial zoom level
 		duration: 500,						// [number] Time it takes for a node to mode (in milliseconds)
 		include: null, 						// [array<str>] Fields to include from the data in the editing panel [whitelist]
 		exclude: null,						// [array<str>]Fields to exclude from the data in the editing panel [blacklist]
@@ -198,7 +198,6 @@ define(['d3'], function(d3) {
 			
 		var that = this;
 
-
 		// Add daphne class if needed, regardless clean out inner html
 		if (this.el.className.indexOf('daphne') === -1) {
 			this.el.className += ' daphne';
@@ -249,7 +248,7 @@ define(['d3'], function(d3) {
 			var w1 = (a.value.length > a.relation.length) ? a.value.length : a.relation.length;
 			var w2 = (b.value.length > b.relation.length) ? b.value.length : b.relation.length;
 
-			var  scale = 0.1;
+			var  scale = 0.02;
 
 			return Math.ceil((w1 * scale) + (w2 * scale) / 2);
 		});
@@ -266,7 +265,7 @@ define(['d3'], function(d3) {
 		this.canvas = this.svg.append('g')
 			.attr('class', 'canvas');
 		this.canvas.append('g');
-		this.canvas.attr('transform', 'translate(' + this.config.width / 2 + ', ' + this.config.marginTop  +')'); 
+		this.canvas.attr('transform', 'translate(' + this.config.width / 2 + ', ' + this.config.marginTop  +') scale(0.9)'); 
 
 		/* Bind zoom behavior to zoom function
 		d3.select(this.el.querySelector('svg'))
@@ -287,7 +286,7 @@ define(['d3'], function(d3) {
 		var that = this;
 		var width = this.el.offsetWidth - 70;
 		this.el.querySelector('svg').style.width = width + 'px';
-		this.canvas.attr('transform', 'translate(' + width / 2 + ', ' + this.config.marginTop  +')'); 
+		this.canvas.attr('transform', 'translate(' + width / 2 + ', ' + this.config.marginTop  +') scale(0.9)'); 
 	};
 
 	/**
