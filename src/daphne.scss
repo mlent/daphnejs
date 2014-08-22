@@ -7,11 +7,11 @@ $link-save-color: #28C2B6;
 $points-color: #28C2B6; 
 $points-error-color: #AF2D04;
 
-@mixin animate($name, $duration, $timing-function, $delay, $iteration-count) {
-	-webkit-animation: $name $duration $timing-function $delay $iteration-count;
-	-moz-animation: $name $duration $timing-function $delay $iteration-count;
-	-o-animation: $name $duration $timing-function $delay $iteration-count;
-	animation: $name $duration $timing-function $delay $iteration-count;
+@mixin animate($name, $duration, $iteration-count, $timing-function) {
+	-webkit-animation: $name $duration $iteration-count $timing-function;
+	-moz-animation: $name $duration $iteration-count $timing-function;
+	-o-animation: $name $duration $iteration-count $timing-function;
+	animation: $name $duration $iteration-count $timing-function;
 }
 @-webkit-keyframes daphne-wiggle {
 	0% {
@@ -36,66 +36,56 @@ $points-error-color: #AF2D04;
 	}
 }
 
-@-webkit-keyframes daphne-bounce {
+@mixin daphne-bounce {
 	0% {
-		top: 0px;
+		-webkit-transform: translateY(0em);
+		-moz-transform: translateY(0em);
+		transform: translateY(0em);
 		animation-timing-function:ease-in;
 	}
 	37% {
-		top: -9px;
+		-webkit-transform: translateY(0em) translateY(-.9em);
+		-moz-transform: translateY(0em) translateY(-.9em);
+		transform: translateY(0em) translateY(-.9em);
 		animation-timing-function:ease-out;
 	}
 	55% {
-		top: 0px;
+		-webkit-transform: translateY(0em);
+		-moz-transform: translateY(0em);
+		transform: translateY(0em);
 		animation-timing-function:ease-in;
 	}
 	73% {
-		top: -5px;
+		transform: translateY(0em) translateY(-.5em);
+		-moz-transform: translateY(0em) translateY(-.5em);
+		-webkit-transform: translateY(0em) translateY(-.5em);
 		animation-timing-function:ease-out;
 	}
 	82% {
-		top: 0px;
+		-webkit-transform: translateY(0em);
+		-moz-transform: translateY(0em);
+		transform: translateY(0em);
 		animation-timing-function:ease-in;
 	}
 	91% {
-		top: -2px;
+		-moz-transform: translateY(0em) translateY(-.2em);
+		-webkit-transform: translateY(0em) translateY(-.2em);
+		transform: translateY(0em) translateY(-.2em);
 		animation-timing-function:ease-out;
 	}
 	100% {
-		top: 0px;
+		-webkit-transform: translateY(0em);
+		-moz-transform: translateY(0em);
+		transform: translateY(0em);
 		animation-timing-function:ease-in;
 	}
 }
+@-webkit-keyframes daphne-bounce {
+	@include daphne-bounce;
+}
 
 @keyframes daphne-bounce {
-	0% {
-		top: 0px;
-		animation-timing-function:ease-in;
-	}
-	37% {
-		top: -9px;
-		animation-timing-function:ease-out;
-	}
-	55% {
-		top: 0px;
-		animation-timing-function:ease-in;
-	}
-	73% {
-		top: -5px;
-		animation-timing-function:ease-out;
-	}
-	82% {
-		top: 0px;
-		animation-timing-function:ease-in;
-	}
-	91% {
-		top: -2px;
-		animation-timing-function:ease-out;
-	}
-	100% {
-		top: 0px;
-		animation-timing-function:ease-in;
-	}
+	@include daphne-bounce;
 }
 
 .daphne {
@@ -109,10 +99,10 @@ $points-error-color: #AF2D04;
 	height: 100%;
 
 	.bounce {
-		@include animate(daphne-bounce, .8s, ease, 0, 1);
+		@include animate(daphne-bounce, .8s, 1, ease);
 	}
 	.wiggle {
-		@include animate(daphne-wiggle, .2s, ease, 0, 3);
+		@include animate(daphne-wiggle, .2s, 3, ease);
 	}
 
 	.svg-container {
