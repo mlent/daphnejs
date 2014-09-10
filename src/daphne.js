@@ -269,12 +269,12 @@ define(['d3'], function(d3) {
 		this.canvas.append('g');
 		this.canvas.attr('transform', 'translate(' + this.config.width / 2 + ', ' + this.config.marginTop  +') scale(0.9)'); 
 
-		/* Bind zoom behavior to zoom function
+		// Bind zoom behavior to zoom function
 		d3.select(this.el.querySelector('svg'))
 			.call(d3.behavior.zoom()
 				.scaleExtent([0.5, 5])
 				.on("zoom", this._zoom.bind(this)))
-			.on('dblclick.zoom', null);*/
+			.on('dblclick.zoom', null);
 
 		this._addEvent(window, "resize", this._respond.bind(this));
 		//setInterval(this._respond.bind(this), 3000);
@@ -289,12 +289,14 @@ define(['d3'], function(d3) {
 		var width = this.el.offsetWidth - 70;
 		this.el.querySelector('svg').style.width = width + 'px';
 		this.canvas.attr('transform', 'translate(' + width / 2 + ', ' + this.config.marginTop  +') scale(0.9)'); 
+		this.config.width = this.el.offsetWidth;
 	};
 
 	/**
 	 * Zooming and scaling function for the parse tree's canvas. Gets attached to the SVG object at end of render function.
 	 */
 	daphne.prototype._zoom = function() {
+		this.config.width = this.el.offsetWidth;
 		var scale = d3.event.scale,
 			trans = d3.event.translate,
 			tbound = -this.config.height * scale,
@@ -307,7 +309,7 @@ define(['d3'], function(d3) {
 			Math.max(Math.min(trans[1], bbound), tbound)
 		];
 
-		this.canvas.attr('transform', 'translate(' + translation + ')'); //scale(' + scale + ')');
+		this.canvas.attr('transform', 'translate(' + translation + ') scale(' + scale + ')');
 	};
 
 	/**
