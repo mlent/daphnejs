@@ -69,7 +69,6 @@ define(['d3'], function(d3) {
 		if (typeof config === 'string') {
 
 			var request = new XMLHttpRequest();
-			request.responseType = 'json';
 			request.open('GET', config, false);
 
 			request.onload = function() {
@@ -85,7 +84,7 @@ define(['d3'], function(d3) {
 				console.log("Connection error while trying to fetch data.");
 			};
 
-			request.send();
+			request.send(null);
 		}
 		// They've passed us the object, so use directly
 		// TODO: Validate against schema and log error if it doesn't match
@@ -531,9 +530,15 @@ define(['d3'], function(d3) {
 	};
 
 	daphne.prototype._sendSubmission = function(child, match, isComplete) {
+
+		// Only try to send submissions to server if requested
+		if (!this.config.submit)
+			return;
+
 		var eventType = isComplete ? 'completed' : 'submitted';
 		var e;
 
+		// TODO: Remove accidental underscore dependency.
 		// If Custom event is available, we want this to trasmit data via event about what user has just done 
 		if (window.CustomEvent) {
 			// Eliminate d3's circular data structure
