@@ -566,15 +566,15 @@ define(['d3'], function(d3) {
 	 * @param {object} node - reference to the d3 selection of the node
 	 */
 	daphne.prototype._viewNodeProperties = function(d, i, node) {
-		if (this.footer.querySelector('form') == null) 
+		if (this.footer.querySelector('form') === null) 
 			this._renderForm();
 
 		// Populate the fields on data which correspond to config. Others, blank. 
 		var fields = this.config.config.fields;
 
-		for (var i = 0; i < fields.length; i++) {
-			var el = this.footer.querySelector('[name="' + fields[i].name + '"]');
-			var value = (d.hasOwnProperty(fields[i].name)) ? d[fields[i].name] : "";
+		for (var j = 0; j < fields.length; i++) {
+			var el = this.footer.querySelector('[name="' + fields[j].name + '"]');
+			var value = (d.hasOwnProperty(fields[j].name)) ? d[fields[j].name] : "";
 
 			switch (el.tagName) {
 				default:
@@ -638,9 +638,9 @@ define(['d3'], function(d3) {
 			// The dreaded nested for-loop, for appending select options
 			for (var key in fields[i].options) {
 				if (fields[i].options.hasOwnProperty(key)) {
-					var opt = document.createElement('option');
-					opt.innerHTML = fields[i].options[key];
-					opt.value = key;
+					var option = document.createElement('option');
+					option.innerHTML = fields[i].options[key];
+					option.value = key;
 					el.appendChild(opt);
 				}
 			}
@@ -680,7 +680,7 @@ define(['d3'], function(d3) {
 			lookup[fields[i].name] = fields[i];
 
 		// Display only the fields appropriate based on conf file
-		for (var i = 0; i < els.length; i++) {
+		for (i = 0; i < els.length; i++) {
 			var name = els[i].getAttribute('data-name');
 			if (lookup[name].exclude && lookup[name].exclude.indexOf(pos) !== -1) {
 				els[i].className = 'hidden';
@@ -1008,7 +1008,7 @@ define(['d3'], function(d3) {
 			var evt = document.createEvent( 'CustomEvent' );
 			evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
 			return evt;
-		};
+		}
 
 		CustomEvent.prototype = window.Event.prototype;
 
