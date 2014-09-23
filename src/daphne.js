@@ -46,16 +46,16 @@ define(['d3'], function(d3) {
 		this.config = this._extend({}, this.defaults, this.options);
 
 		// Pass in a URL as data-source, or an array of word objects as a 'data' option
-		/*
-		TODO: Re-write logic to allow API endpoint + pass in a callback.
 		if (!this.config.data) {
+			this._configureSettings(this.options.config);
 			this._fetchData();
 			this.el.addEventListener('populated', this.render.bind(this));
-		}*/
-
-		this._configureSettings(this.options.config);
-		this.data = this._convertData(this.config.data);
-		this.render();
+		}
+		else {
+			this._configureSettings(this.options.config);
+			this.data = this._convertData(this.config.data);
+			this.render();
+		}
 
 		return this;
 	};
@@ -141,9 +141,14 @@ define(['d3'], function(d3) {
 	 * Creates replicate copy of the data if the user is in 'edit' mode or 'play' mode.
 	 * @param {object} words - Array of word objects.
 	 */
-	daphne.prototype._convertData = function(words) {
+	daphne.prototype._convertData = function(w) {
 
-		var that = this;
+		var words = JSON.parse(JSON.stringify(w));
+
+		// If grabbing data from API endpoint, convert tbwid attr to id
+		words.forEach(function(word) {
+			word.id = word.tbwid || word.id;
+		});
 
 		// Store our good, untouched-by-the-user data somewhere safe 
 		this.answers = JSON.parse(JSON.stringify(words));
